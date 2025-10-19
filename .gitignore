@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.env
+.env.local
+logs/
+*.log
+data/
+sessions/
+.DS_Store
+postgres_data/
+n8n_data/
+ollama_data/

@@ -1,0 +1,185 @@
+{
+  "reddit": {
+    "subreddits": [
+      {
+        "name": "MachineLearning",
+        "category": "ai",
+        "description": "Machine learning research and papers"
+      },
+      {
+        "name": "artificial",
+        "category": "ai",
+        "description": "AI news and discussions"
+      },
+      {
+        "name": "LocalLLaMA",
+        "category": "ai",
+        "description": "Local LLM deployment"
+      },
+      {
+        "name": "OpenAI",
+        "category": "ai",
+        "description": "OpenAI and ChatGPT discussions"
+      },
+      {
+        "name": "StableDiffusion",
+        "category": "ai",
+        "description": "Stable Diffusion AI art"
+      },
+      {
+        "name": "ArtificialInteligence",
+        "category": "ai",
+        "description": "General AI discussions"
+      },
+      {
+        "name": "singularity",
+        "category": "ai",
+        "description": "AI singularity and AGI"
+      },
+      {
+        "name": "MLQuestions",
+        "category": "ai",
+        "description": "ML Q&A and help"
+      },
+      {
+        "name": "deeplearning",
+        "category": "ai",
+        "description": "Deep learning research"
+      },
+      {
+        "name": "learnmachinelearning",
+        "category": "ai",
+        "description": "Learning ML resources"
+      },
+      {
+        "name": "LanguageTechnology",
+        "category": "ai",
+        "description": "NLP and language models"
+      },
+      {
+        "name": "computervision",
+        "category": "ai",
+        "description": "Computer vision"
+      },
+      {
+        "name": "reinforcementlearning",
+        "category": "ai",
+        "description": "RL research and applications"
+      },
+      {
+        "name": "DataScience",
+        "category": "ai",
+        "description": "Data science and analytics"
+      },
+      {
+        "name": "MLOps",
+        "category": "ai",
+        "description": "ML operations and deployment"
+      },
+      {
+        "name": "LLMDevs",
+        "category": "ai",
+        "description": "LLM development"
+      },
+      {
+        "name": "AutoGPT",
+        "category": "ai",
+        "description": "Autonomous AI agents"
+      },
+      {
+        "name": "Oobabooga",
+        "category": "ai",
+        "description": "Text generation WebUI"
+      },
+      {
+        "name": "ChatGPT",
+        "category": "ai",
+        "description": "ChatGPT discussions"
+      },
+      {
+        "name": "Bard",
+        "category": "ai",
+        "description": "Google Bard AI"
+      },
+      {
+        "name": "ClaudeAI",
+        "category": "ai",
+        "description": "Anthropic Claude"
+      },
+      {
+        "name": "LocalLlama",
+        "category": "ai",
+        "description": "Local language models"
+      },
+      {
+        "name": "Futurology",
+        "category": "ai",
+        "description": "AI and future tech"
+      },
+      {
+        "name": "technology",
+        "category": "tech",
+        "description": "General tech news"
+      }
+    ]
+  },
+  "medium": {
+    "tags": [
+      {
+        "name": "machine-learning",
+        "category": "ai"
+      },
+      {
+        "name": "artificial-intelligence",
+        "category": "ai"
+      },
+      {
+        "name": "deep-learning",
+        "category": "ai"
+      },
+      {
+        "name": "data-science",
+        "category": "ai"
+      },
+      {
+        "name": "neural-networks",
+        "category": "ai"
+      },
+      {
+        "name": "nlp",
+        "category": "ai"
+      },
+      {
+        "name": "computer-vision",
+        "category": "ai"
+      },
+      {
+        "name": "chatgpt",
+        "category": "ai"
+      },
+      {
+        "name": "large-language-models",
+        "category": "ai"
+      },
+      {
+        "name": "generative-ai",
+        "category": "ai"
+      },
+      {
+        "name": "python",
+        "category": "dev"
+      },
+      {
+        "name": "pytorch",
+        "category": "ai"
+      },
+      {
+        "name": "tensorflow",
+        "category": "ai"
+      }
+    ]
+  },
+  "telegram": {
+    "channels": []
+  }
+}
