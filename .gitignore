@@ -12,3 +12,8 @@ sessions/
 postgres_data/
 n8n_data/
 ollama_data/
+<<<<<<< Updated upstream
+=======
+src/config/config.yaml
+git-safe-push.sh
+>>>>>>> Stashed changes
