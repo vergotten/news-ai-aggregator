@@ -144,6 +144,12 @@ if 'parsing_logs' not in st.session_state:
 if 'parsing_active' not in st.session_state:
     st.session_state.parsing_active = False
 
+if 'parsing_in_progress' not in st.session_state:
+    st.session_state.parsing_in_progress = False
+
+if 'parsing_results' not in st.session_state:
+    st.session_state.parsing_results = None
+
 if 'parsing_progress' not in st.session_state:
     st.session_state.parsing_progress = {'current': 0, 'total': 0, 'status': ''}
 
@@ -152,6 +158,9 @@ if 'language' not in st.session_state:
 
 if 'log_session_counter' not in st.session_state:
     st.session_state.log_session_counter = 0
+
+if 'log_storage' not in st.session_state:
+    st.session_state.log_storage = None
 
 # ============================================================================
 # КЛАССЫ И ФУНКЦИИ
