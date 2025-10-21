@@ -12,5 +12,5 @@ sessions/
 postgres_data/
 n8n_data/
 ollama_data/
-config/config.yaml
+src/config/config.yaml
 git-safe-push.sh
