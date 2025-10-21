@@ -1,4 +1,4 @@
-"""Сервис редакторской обработки через GPT-OSS."""
+"""Сервис редакторской обработки через Ollama models."""
 import os
 import logging
 import json
@@ -18,29 +18,30 @@ class EditorialService:
     в полноценные новостные публикации в стиле Петербургской школы текста.
     """
 
-    def __init__(self, prompt_path: Optional[str] = None, model: str = "llama3.2:3b"): # "gpt-oss:20b"
+    def __init__(self, prompt_path: Optional[str] = None, model: Optional[str] = None):
         """
         Инициализация редакторского сервиса.
 
         Args:
             prompt_path: Путь к XML файлу с промптом.
                         Если None, ищет в config/editorial_prompt.xml
-            model: Название модели Ollama для использования (gpt-oss:20b)
+            model: Название модели Ollama. Если None, берет из env или использует gpt-oss:20b
         """
-        self.model = model
+        # Получаем модель из env или используем дефолтную
+        self.model = model or os.getenv("OLLAMA_MODEL", "gpt-oss:20b")  # llama3.2:3b
         self.ollama = get_ollama_service()
-        self.ollama.model = model  # Переопределяем модель
+        self.ollama.model = self.model  # Переопределяем модель
 
         # Определение пути к промпту
         if prompt_path is None:
-            base_path = Path(__file__).parent.parent  # ✅ FIXED: Only go up 2 levels
+            base_path = Path(__file__).parent.parent
             self.prompt_path = base_path / "config" / "editorial_prompt.xml"
         else:
             self.prompt_path = Path(prompt_path)
 
         # Загрузка промпта
         self.system_prompt = self._load_prompt()
-        logger.info(f"Редакторский сервис инициализирован: модель={model}")
+        logger.info(f"Редакторский сервис инициализирован: модель={self.model}")
 
     def _load_prompt(self) -> str:
         """
@@ -68,9 +69,6 @@ class EditorialService:
                 step_name = step.find('name').text.strip()
                 step_instruction = step.find('instruction').text.strip()
                 steps.append(f"{step_num}. {step_name}\n{step_instruction}")
-
-            # Формат вывода
-            output_format = root.find('.//output_format/structure')
 
             # Собираем финальный промпт
             system_prompt = f"""
@@ -146,6 +144,7 @@ class EditorialService:
         logger.info("=" * 70)
         logger.info(f"   Заголовок: {title[:60]}...")
         logger.info(f"   Источник: {source}")
+        logger.info(f"   Модель: {self.model}")
         logger.info(f"   Длина текста: {len(content)} символов")
 
         import time
@@ -188,7 +187,7 @@ class EditorialService:
                     'processing_time': time.time() - start_time
                 }
 
-            logger.info("Ответ получен, парсинг JSON...")
+            logger.info("   Ответ получен, парсинг JSON...")
 
             # Парсинг JSON из ответа
             # Очистка от возможного мусора до/после JSON
@@ -216,12 +215,12 @@ class EditorialService:
 
             # Логирование результата
             if result.get('is_news'):
-                logger.info("Новость распознана и обработана")
-                logger.info(f"Новый заголовок: {result.get('title', 'N/A')}")
-                logger.info(f"Время обработки: {processing_time:.2f}s")
+                logger.info("   ✓ Новость распознана и обработана")
+                logger.info(f"   Новый заголовок: {result.get('title', 'N/A')}")
+                logger.info(f"   Время обработки: {processing_time:.2f}s")
             else:
-                logger.info("Не является новостью")
-                logger.info(f"Время обработки: {processing_time:.2f}s")
+                logger.info("   ✗ Не является новостью")
+                logger.info(f"   Время обработки: {processing_time:.2f}s")
 
             logger.info("=" * 70)
             logger.info("РЕДАКТОРСКАЯ ОБРАБОТКА ЗАВЕРШЕНА")

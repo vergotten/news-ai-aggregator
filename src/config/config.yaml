@@ -1,0 +1,76 @@
+# Основные настройки приложения
+app:
+  port: 8501
+  timezone: "UTC"
+  logs_max_length: 500
+  viewer_default_limit: 100
+  show_debug_info: false
+
+# Настройки базы данных PostgreSQL
+database:
+  user: "newsaggregator"
+  password: "changeme123"
+  dbname: "news_aggregator"
+  port: 5433
+  schema: "parsers"
+  url: "${DATABASE_URL}"  # Переменная окружения имеет приоритет
+
+# Настройки Reddit API
+reddit:
+  client_id: "qpyZocAcLob0M8zbug8lrg"
+  client_secret: "wafZuaOqufek2lpBEaKlG3emDB1bkA"
+  user_agent: "NewsAggregator/1.0"
+  max_posts: 50
+  default_sort: "hot"
+  delay: 5
+  enable_llm: true
+
+# Настройки Telegram API
+telegram:
+  api_id: "your_api_id"
+  api_hash: "your_api_hash"
+  phone: "+1234567890"
+
+# Настройки Qdrant
+qdrant:
+  url: "http://qdrant:6333"
+  port: 6333
+  grpc_port: 6334
+  collection_name: "reddit_posts"
+  vector_size: 768
+  distance_metric: "COSINE"
+
+# Настройки Ollama
+ollama:
+  base_url: "http://ollama:11434"
+  port: 11434
+  model: "gpt-oss:20b"  # или "llama3.2:3b"
+  embedding_model: "nomic-embed-text"
+  temperature: 0.7
+  max_tokens: 6000
+  top_p: 0.9
+  timeout: 1600
+  max_retries: 5
+
+# Настройки редакторской обработки
+editorial:
+  prompt_path: "config/editorial_prompt.xml"
+  similarity_threshold: 0.95
+  min_text_length: 50
+  enable_semantic_dedup: true
+  enable_vectorization: true
+  max_parallel_tasks: 2
+  batch_size: 10
+
+# Настройки N8N (для автоматизации)
+n8n:
+  port: 5678
+  db: "n8n"
+  basic_auth_active: true
+  basic_auth_user: "admin"
+  basic_auth_password: "admin123"
+
+# Настройки парсинга Medium
+medium:
+  max_articles: 30
+  delay: 3

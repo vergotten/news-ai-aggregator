@@ -46,8 +46,19 @@ services:
     image: ollama/ollama:latest
     container_name: news-aggregator-ollama
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ gpu ]
     environment:
       OLLAMA_HOST: "0.0.0.0:11434"
+      # Force GPU support
+      OLLAMA_NUM_GPU: 1
+      # Allow partial GPU usage (layers that fit in VRAM go to GPU, rest on CPU)
+      OLLAMA_MAX_LOADED_LAYERS: 20
+      # Optional: disable telemetry and adjust model cache
+      OLLAMA_TELEMETRY: "false"
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
     volumes:
@@ -55,11 +66,13 @@ services:
     networks:
       - news-aggregator-network
     healthcheck:
-      test: ["CMD", "ollama", "list"]
+      test: [ "CMD", "ollama", "list" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
+    runtime: nvidia
+
 
   ollama-init:
     image: ollama/ollama:latest
@@ -73,33 +86,73 @@ services:
       - news-aggregator-network
     environment:
       OLLAMA_HOST: "http://ollama:11434"
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: [ "/bin/sh", "-c" ]
     command:
       - |
-        echo "Waiting for Ollama server..."
-        sleep 10
+        echo "=============================================="
+        echo "Ollama Model Initialization"
+        echo "=============================================="
         
+        echo "Waiting for Ollama server to be fully ready..."
+        sleep 15
+        
+        echo ""
         echo "Checking existing models..."
         MODELS=$$(ollama list 2>/dev/null || echo "")
+        echo "$$MODELS"
+        echo ""
         
+        # ============================================
+        # Embeddings model (required for vectorization)
+        # ============================================
         if echo "$$MODELS" | grep -q "nomic-embed-text"; then
-          echo "nomic-embed-text already installed"
+          echo "✓ nomic-embed-text already installed"
         else
-          echo "Installing nomic-embed-text..."
+          echo "Installing nomic-embed-text (274MB, ~1 minute)..."
           ollama pull nomic-embed-text
+          echo "✓ nomic-embed-text installed"
         fi
         
-        if echo "$$MODELS" | grep -q "gpt-oss:20b"; then
-          echo "gpt-oss:20b already installed"
-        else
-          echo "Installing gpt-oss:20b (15-30 minutes)..."
-          ollama pull gpt-oss:20b
-        fi
+        echo ""
         
+        # ============================================
+        # Main LLM model - llama3.2:3b (ACTIVE)
+        # ============================================
+        # if echo "$$MODELS" | grep -q "llama3.2:3b"; then
+        #   echo "✓ llama3.2:3b already installed"
+        # else
+        #   echo "=============================================="
+        #   echo "Installing llama3.2:3b"
+        #   echo "Size: ~2GB | Time: 2-5 minutes"
+        #   echo "=============================================="
+        #   ollama pull llama3.2:3b
+        #   echo "✓ llama3.2:3b installed"
+        # fi
+        
+        # ============================================
+        # GPT-OSS model (COMMENTED OUT - heavy model)
+        # Uncomment if you need more powerful model
+        # Requires: 16GB+ RAM, 13GB disk, 15-30 min download
+        # ============================================
+         if echo "$$MODELS" | grep -q "gpt-oss:20b"; then
+           echo "✓ gpt-oss:20b already installed"
+         else
+           echo "=============================================="
+           echo "Installing gpt-oss:20b"
+           echo "Size: ~13GB | Time: 15-30 minutes"
+           echo "=============================================="
+           ollama pull gpt-oss:20b
+           echo "✓ gpt-oss:20b installed"
+         fi
+        
+        echo ""
+        echo "=============================================="
         echo "Final model list:"
+        echo "=============================================="
         ollama list
-        
-        echo "Ollama initialization complete"
+        echo ""
+        echo "✓ Ollama initialization complete"
+        echo "=============================================="
     restart: "no"
 
   app:

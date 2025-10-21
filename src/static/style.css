@@ -1,121 +1,161 @@
 /* ============================================
-   ГЛОБАЛЬНАЯ ТЕМА - Улучшенный Профессиональный Дизайн
+   ГЛОБАЛЬНАЯ ТЕМА - Компактный Профессиональный Дизайн
    ============================================ */
-/* Переменные для тем */
 :root {
-    --bg-primary: #ffffff;           /* Основной фон */
-    --bg-secondary: #f8fafc;         /* Вторичный фон */
-    --bg-hover: #fee2e2;             /* Светлый вишнево-красный фон при наведении */
-    --bg-tertiary: #fafbfc;          /* Третичный фон */
-    --text-primary: #0f172a;         /* Основной текст */
-    --text-secondary: #64748b;       /* Вторичный текст */
-    --text-tertiary: #94a3b8;        /* Третичный текст */
-    --border-light: #e2e8f0;         /* Светлая граница */
-    --border-medium: #cbd5e1;        /* Средняя граница */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);     /* Маленькая тень */
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);   /* Средняя тень */
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1); /* Большая тень */
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1); /* Очень большая тень */
-    --gradient-primary: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);  /* Вишнево-красный градиент */
-    --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);  /* Градиент успеха */
-    --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);  /* Градиент предупреждения */
-    --gradient-info: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);     /* Градиент информации */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-hover: #fee2e2;
+    --bg-tertiary: #fafbfc;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-tertiary: #94a3b8;
+    --border-light: #e2e8f0;
+    --border-medium: #cbd5e1;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    --gradient-primary: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-info: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
+
 [data-theme="dark"] {
-    --bg-primary: #dbe6ff;          /* Основной фон для темной темы */
-    --bg-secondary: #1e293b;        /* Вторичный фон */
-    --bg-hover: #334155;            /* Фон при наведении (улучшен для видимости) */
-    --bg-tertiary: #1a2332;         /* Третичный фон */
-    --text-primary: #f1f5f9;        /* Основной текст */
-    --text-secondary: #94a3b8;      /* Вторичный текст */
-    --text-tertiary: #64748b;       /* Третичный текст */
-    --border-light: #334155;        /* Светлая граница */
-    --border-medium: #475569;       /* Средняя граница */
+    --bg-primary: #dbe6ff;
+    --bg-secondary: #1e293b;
+    --bg-hover: #334155;
+    --bg-tertiary: #1a2332;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-tertiary: #64748b;
+    --border-light: #334155;
+    --border-medium: #475569;
 }
+
 [data-theme="blue"] {
-    --bg-primary: #eff6ff;          /* Основной фон для синей темы */
-    --bg-secondary: #dbeafe;        /* Вторичный фон */
-    --bg-hover: #bfdbfe;            /* Фон при наведении */
-    --bg-tertiary: #e0f2fe;         /* Третичный фон */
-    --text-primary: #1e3a8a;        /* Основной текст */
-    --text-secondary: #3b82f6;      /* Вторичный текст */
-    --text-tertiary: #60a5fa;       /* Третичный текст */
-    --border-light: #93c5fd;        /* Светлая граница */
-    --border-medium: #60a5fa;       /* Средняя граница */
+    --bg-primary: #eff6ff;
+    --bg-secondary: #dbeafe;
+    --bg-hover: #bfdbfe;
+    --bg-tertiary: #e0f2fe;
+    --text-primary: #1e3a8a;
+    --text-secondary: #3b82f6;
+    --text-tertiary: #60a5fa;
+    --border-light: #93c5fd;
+    --border-medium: #60a5fa;
 }
-/* Плавная прокрутка */
+
 html {
     scroll-behavior: smooth;
 }
-/* Базовый фон и переходы */
-html, body, [data-testid="stAppViewContainer"], .main, .block-container {
+
+html, body, [data-testid="stAppViewContainer"] {
     background-color: var(--bg-primary) !important;
     transition: background-color 0.3s ease !important;
 }
-/* Цвета текста с переходами */
+
+.main {
+    background-color: var(--bg-primary) !important;
+    padding: 1rem 1rem 10rem !important;
+}
+
+.block-container {
+    background-color: var(--bg-primary) !important;
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    max-width: 1200px !important;
+}
+
 *, h1, h2, h3, h4, h5, h6, p, span, div, label {
     color: var(--text-primary) !important;
     transition: color 0.2s ease !important;
 }
-/* Улучшенная типографика */
+
+/* ============================================
+   КОМПАКТНАЯ ТИПОГРАФИКА
+   ============================================ */
 h1 {
     font-weight: 800 !important;
+    font-size: 28px !important;
     letter-spacing: -0.025em !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    background: var(--gradient-primary) !important;  /* Вишнево-красный градиент */
+    background: var(--gradient-primary) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
+    margin: 0.5rem 0 !important;
+    line-height: 1.2 !important;
 }
+
 h2 {
     font-weight: 700 !important;
+    font-size: 20px !important;
     letter-spacing: -0.015em !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     position: relative !important;
-    padding-bottom: 8px !important;
+    padding-bottom: 6px !important;
+    margin: 0.75rem 0 0.5rem 0 !important;
+    line-height: 1.3 !important;
 }
+
 h2::after {
     content: '' !important;
     position: absolute !important;
     bottom: 0 !important;
     left: 0 !important;
-    width: 60px !important;
+    width: 50px !important;
     height: 3px !important;
-    background: var(--gradient-primary) !important;  /* Вишнево-красный градиент */
+    background: var(--gradient-primary) !important;
     border-radius: 2px !important;
 }
+
 h3 {
     font-weight: 600 !important;
+    font-size: 16px !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    margin: 0.5rem 0 0.25rem 0 !important;
+    line-height: 1.3 !important;
 }
-/* Улучшенный заголовок */
+
+/* ============================================
+   HEADER
+   ============================================ */
 [data-testid="stHeader"] {
     background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
     border-bottom: 1px solid var(--border-light) !important;
     backdrop-filter: blur(10px) !important;
+    padding: 0.5rem !important;
 }
+
 [data-testid="stAlert"] {
-    border-radius: 12px !important;
-    padding: 12px 16px !important;
+    border-radius: 10px !important;
+    padding: 0.75rem 1rem !important;
     border: none !important;
     font-weight: 600 !important;
     font-family: 'Inter', sans-serif !important;
     backdrop-filter: blur(8px) !important;
+    margin: 0.5rem 0 !important;
+    font-size: 14px !important;
 }
+
 /* ============================================
-   УЛУЧШЕННЫЕ ВКЛАДКИ
+   TABS
    ============================================ */
 [data-testid="stTabs"] button[data-baseweb="tab"] {
     color: var(--text-secondary) !important;
     font-weight: 600 !important;
-    padding: 12px 24px !important;
+    padding: 10px 20px !important;
     border: none !important;
     border-bottom: 3px solid transparent !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     background-color: transparent !important;
     font-family: 'Inter', sans-serif !important;
     position: relative !important;
+    font-size: 14px !important;
 }
+
 [data-testid="stTabs"] button[data-baseweb="tab"]::before {
     content: '' !important;
     position: absolute !important;
@@ -124,42 +164,49 @@ h3 {
     transform: translateX(-50%) !important;
     width: 0 !important;
     height: 2px !important;
-    background: var(--gradient-primary) !important;  /* Вишнево-красный градиент */
+    background: var(--gradient-primary) !important;
     transition: width 0.3s ease !important;
 }
+
 [data-testid="stTabs"] button[data-baseweb="tab"]:hover {
     color: var(--text-primary) !important;
     background: linear-gradient(135deg, var(--bg-hover) 0%, var(--bg-secondary) 100%) !important;
     transform: translateY(-2px) !important;
 }
+
 [data-testid="stTabs"] button[data-baseweb="tab"]:hover::before {
     width: 80% !important;
 }
+
 [data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"] {
     color: var(--text-primary) !important;
     font-weight: 700 !important;
-    border-bottom-color: #dc2626 !important;  /* Вишнево-красный */
+    border-bottom-color: #dc2626 !important;
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-hover) 100%) !important;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15) !important;  /* Тень с красным оттенком */
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15) !important;
 }
+
 /* ============================================
-   УЛУЧШЕННЫЕ ПОЛЯ ВВОДА
+   INPUT FIELDS
    ============================================ */
 input, textarea, select {
     background-color: var(--bg-primary) !important;
     color: var(--text-primary) !important;
     border: 2px solid var(--border-light) !important;
     border-radius: 10px !important;
-    padding: 12px 16px !important;
+    padding: 10px 14px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     box-shadow: var(--shadow-sm) !important;
+    font-size: 14px !important;
 }
+
 input:focus, textarea:focus, select:focus {
-    border-color: #dc2626 !important;  /* Вишнево-красный для фокуса */
+    border-color: #dc2626 !important;
     box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1) !important;
     outline: none !important;
     transform: translateY(-2px) !important;
 }
+
 [data-baseweb="select"] > div {
     background-color: var(--bg-primary) !important;
     color: var(--text-primary) !important;
@@ -168,35 +215,29 @@ input:focus, textarea:focus, select:focus {
     transition: all 0.3s ease !important;
     box-shadow: var(--shadow-sm) !important;
 }
+
 [data-baseweb="select"] > div:hover {
     border-color: var(--border-medium) !important;
     box-shadow: var(--shadow-md) !important;
 }
-/* ============================================
-   DROPDOWN FIX - MAXIMUM SPECIFICITY
-   ============================================ */
 
-/* Target ALL possible dropdown containers */
+/* ============================================
+   DROPDOWN - LIGHT THEME FIX
+   ============================================ */
 [data-baseweb="popover"],
 [data-baseweb="popover"] > div,
 [data-baseweb="menu"],
 [role="listbox"],
 ul[role="listbox"],
-div[role="listbox"],
-[data-baseweb="select"] [data-baseweb="popover"],
-[data-baseweb="select"] [data-baseweb="menu"],
-div[class*="st-"] [data-baseweb="popover"],
-body > div[data-baseweb="popover"],
-#root > div[data-baseweb="popover"] {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
-    border: 2px solid #e2e8f0 !important;
+div[role="listbox"] {
+    background-color: var(--bg-primary) !important; /* Light background, e.g., #ffffff */
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important; /* e.g., #0f172a */
+    border: 2px solid var(--border-light) !important; /* e.g., #e2e8f0 */
     border-radius: 12px !important;
     box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1) !important;
 }
 
-/* Force all nested divs inside dropdown */
 [data-baseweb="popover"] *,
 [data-baseweb="menu"] *,
 [role="listbox"] * {
@@ -204,137 +245,54 @@ body > div[data-baseweb="popover"],
     background: transparent !important;
 }
 
-/* Menu list items */
 [data-baseweb="menu"] li,
-[data-baseweb="menu"] [role="option"],
 ul[role="listbox"] li,
-div[role="listbox"] li,
-[data-baseweb="popover"] li,
-li[role="option"] {
+div[role="listbox"] li {
     background-color: transparent !important;
-    background: transparent !important;
-    color: #0f172a !important;
+    color: var(--text-primary) !important; /* e.g., #0f172a */
     padding: 8px 12px !important;
     cursor: pointer !important;
     border-radius: 6px !important;
     transition: background-color 0.2s ease !important;
 }
 
-/* Hover state */
 [data-baseweb="menu"] li:hover,
-[data-baseweb="menu"] [role="option"]:hover,
-ul[role="listbox"] li:hover,
-div[role="listbox"] li:hover,
-[data-baseweb="popover"] li:hover,
-li[role="option"]:hover {
-    background-color: #f1f5f9 !important;
-    background: #f1f5f9 !important;
-    color: #b91c1c !important;
+ul[role="listbox"] li:hover {
+    background-color: var(--bg-hover) !important; /* e.g., #fee2e2 */
+    color: var(--text-primary) !important; /* e.g., #0f172a */
 }
 
-/* Selected/active item */
-[aria-selected="true"],
-li[aria-selected="true"] {
-    background-color: #fee2e2 !important;
-    color: #dc2626 !important;
+[aria-selected="true"] {
+    background-color: var(--bg-hover) !important; /* e.g., #fee2e2 */
+    color: var(--gradient-primary, #dc2626) !important;
     font-weight: 600 !important;
 }
 
-/* Force text color on ALL children */
-[data-baseweb="popover"] li *,
-[data-baseweb="menu"] li *,
-[role="listbox"] li *,
-li[role="option"] * {
-    color: inherit !important;
-    background: transparent !important;
-}
-
-/* Select button/trigger */
-[data-baseweb="select"] > div,
-[data-baseweb="select"] [role="button"] {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    border: 2px solid #e2e8f0 !important;
-}
-
-/* Nuclear option: override ANY black backgrounds */
-[data-baseweb="popover"][style*="background"],
-[data-baseweb="menu"][style*="background"],
-[role="listbox"][style*="background"] {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-}
-
-/* Dark theme */
-[data-theme="dark"] [data-baseweb="popover"],
-[data-theme="dark"] [data-baseweb="menu"],
-[data-theme="dark"] [role="listbox"] {
-    background-color: #1e293b !important;
-    border-color: #475569 !important;
-}
-
-[data-theme="dark"] [data-baseweb="menu"] li,
-[data-theme="dark"] [role="listbox"] li {
-    color: #f1f5f9 !important;
-}
-
-[data-theme="dark"] [data-baseweb="menu"] li:hover,
-[data-theme="dark"] [role="listbox"] li:hover {
-    background-color: #334155 !important;
-}
-
-[data-theme="dark"] [data-baseweb="select"] > div,
-[data-theme="dark"] [data-baseweb="select"] [role="button"] {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-}
-
-/* Blue theme */
-[data-theme="blue"] [data-baseweb="popover"],
-[data-theme="blue"] [data-baseweb="menu"],
-[data-theme="blue"] [role="listbox"] {
-    background-color: #dbeafe !important;
-    border-color: #93c5fd !important;
-}
-
-[data-theme="blue"] [data-baseweb="menu"] li,
-[data-theme="blue"] [role="listbox"] li {
-    color: #1e3a8a !important;
-}
-
-[data-theme="blue"] [data-baseweb="menu"] li:hover,
-[data-theme="blue"] [role="listbox"] li:hover {
-    background-color: #bfdbfe !important;
-}
-
-[data-theme="blue"] [data-baseweb="select"] > div,
-[data-theme="blue"] [data-baseweb="select"] [role="button"] {
-    background-color: #dbeafe !important;
-    color: #1e3a8a !important;
-}
 /* ============================================
-   УЛУЧШЕННЫЕ ТЕГИ МУЛЬТИВЫБОРА
+   TAGS
    ============================================ */
 [data-baseweb="tag"] {
     background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%) !important;
     color: #dc2626 !important;
     border: 2px solid #fecaca !important;
     border-radius: 10px !important;
-    padding: 8px 14px !important;
+    padding: 6px 12px !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     font-family: 'Inter', sans-serif !important;
     box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1) !important;
 }
+
 [data-baseweb="tag"]:hover {
     background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
     border-color: #f87171 !important;
     transform: translateY(-2px) scale(1.05) !important;
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
 }
+
 /* ============================================
-   РАЗДЕЛ REDDIT - УЛЬТИМАТИВНАЯ КРАСНАЯ КНОПКА
+   REDDIT SECTION - КРАСНАЯ КНОПКА
    ============================================ */
 .reddit-section button,
 .reddit-section .stButton button,
@@ -344,9 +302,9 @@ li[role="option"] * {
     color: #ffffff !important;
     border: none !important;
     border-radius: 18px !important;
-    padding: 22px 48px !important;
+    padding: 20px 44px !important;
     font-weight: 900 !important;
-    font-size: 22px !important;
+    font-size: 20px !important;
     letter-spacing: 2px !important;
     text-transform: uppercase !important;
     box-shadow:
@@ -359,6 +317,7 @@ li[role="option"] * {
     overflow: hidden !important;
     animation: pulseRedEnhanced 3s ease-in-out infinite !important;
 }
+
 @keyframes pulseRedEnhanced {
     0%, 100% {
         box-shadow:
@@ -377,6 +336,7 @@ li[role="option"] * {
         transform: scale(1.02);
     }
 }
+
 .reddit-section button::before,
 .reddit-section .stButton button::before {
     content: '' !important;
@@ -393,6 +353,7 @@ li[role="option"] * {
     ) !important;
     animation: shine 4s ease-in-out infinite !important;
 }
+
 @keyframes shine {
     0% {
         transform: translateX(-100%) translateY(-100%) rotate(45deg);
@@ -406,10 +367,10 @@ li[role="option"] * {
         opacity: 0;
     }
 }
+
 .reddit-section button:hover,
 .reddit-section .stButton button:hover {
     background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #ef4444 100%) !important;
-    color: #ffffff !important;
     transform: translateY(-6px) scale(1.05) !important;
     box-shadow:
         0 0 40px rgba(220, 38, 38, 0.9),
@@ -418,23 +379,10 @@ li[role="option"] * {
         inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
     animation: none !important;
 }
-.reddit-section button:active,
-.reddit-section .stButton button:active {
-    background: linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #dc2626 100%) !important;
-    color: #ffffff !important;
-    transform: translateY(-3px) scale(1.02) !important;
-    box-shadow:
-        0 0 25px rgba(220, 38, 38, 0.7),
-        0 0 50px rgba(220, 38, 38, 0.5),
-        0 12px 35px rgba(220, 38, 38, 0.6) !important;
-}
-.reddit-section button *,
-.reddit-section .stButton button * {
-    color: #ffffff !important;
-}
+
 .reddit-section {
     position: relative !important;
-    padding: 28px !important;
+    padding: 24px !important;
     border-radius: 20px !important;
     border: 2px solid rgba(220, 38, 38, 0.3) !important;
     background: linear-gradient(
@@ -445,35 +393,9 @@ li[role="option"] * {
     ) !important;
     box-shadow: 0 4px 20px rgba(220, 38, 38, 0.08) !important;
 }
-.reddit-section::before {
-    content: '' !important;
-    position: absolute !important;
-    top: -2px !important;
-    left: -2px !important;
-    right: -2px !important;
-    bottom: -2px !important;
-    border-radius: 20px !important;
-    background: var(--gradient-primary) !important;
-    opacity: 0.4 !important;
-    z-index: -1 !important;
-    filter: blur(8px) !important;
-    pointer-events: none !important;
-}
-.reddit-section [data-baseweb="checkbox"] {
-    border-color: #dc2626 !important;
-}
-.reddit-section [data-baseweb="checkbox"]:checked {
-    background: var(--gradient-primary) !important;
-}
-.reddit-section [data-baseweb="slider"] [role="slider"] {
-    background: var(--gradient-primary) !important;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3) !important;
-}
-.reddit-section [data-baseweb="slider"] [data-baseweb="slider-track"] {
-    background: var(--gradient-primary) !important;
-}
+
 /* ============================================
-   УЛУЧШЕННЫЕ КНОПКИ
+   BUTTONS
    ============================================ */
 .stButton > button {
     background: var(--gradient-primary) !important;
@@ -488,269 +410,167 @@ li[role="option"] * {
     position: relative !important;
     overflow: hidden !important;
 }
-.stButton > button::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    width: 0 !important;
-    height: 0 !important;
-    border-radius: 50% !important;
-    background: rgba(220, 38, 38, 0.1) !important;
-    transform: translate(-50%, -50%) !important;
-    transition: width 0.6s, height 0.6s !important;
-}
-.stButton > button:hover::before {
-    width: 300px !important;
-    height: 300px !important;
-}
+
 .stButton > button:hover {
     background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
     border-color: #ef4444 !important;
-    color: #ffffff !important;
     transform: translateY(-2px) !important;
     box-shadow: var(--shadow-md) !important;
 }
-.stButton > button:active {
-    transform: translateY(0) !important;
-    box-shadow: var(--shadow-sm) !important;
+
+[data-testid="stLinkButton"] > a,
+a[data-testid="stLinkButton"] {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+    color: #dc2626 !important;
+    border: 2px solid #f87171 !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    display: inline-block !important;
 }
-button[kind="primary"] {
-    background: var(--gradient-primary) !important;
-    color: #ffffff !important;
-    border: none !important;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4) !important;
+
+[data-testid="stLinkButton"] > a:hover,
+a[data-testid="stLinkButton"]:hover {
+    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%) !important;
+    color: #b91c1c !important;
+    border-color: #dc2626 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
 }
-button[kind="primary"]:hover {
-    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5) !important;
-}
-button[kind="secondary"] {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-hover) 100%) !important;
-    color: var(--text-primary) !important;
-    border: 2px solid var(--border-light) !important;
-}
+
 /* ============================================
-   УЛУЧШЕННЫЙ РАСКРЫВАЮЩИЙСЯ БЛОК
+   EXPANDER - КОМПАКТНЫЙ
    ============================================ */
 [data-testid="stExpander"] {
     background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
     border: 2px solid var(--border-light) !important;
-    border-radius: 16px !important;
+    border-radius: 14px !important;
     box-shadow: var(--shadow-sm) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     backdrop-filter: blur(10px) !important;
+    margin-bottom: 8px !important;
 }
+
 .streamlit-expanderHeader {
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%) !important;
     color: var(--text-primary) !important;
-    padding: 16px 20px !important;
-    border-radius: 14px !important;
+    padding: 10px 16px !important;
+    border-radius: 12px !important;
     font-weight: 700 !important;
     transition: all 0.3s ease !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
 }
+
 .streamlit-expanderContent,
-[data-testid="stExpander"] > div:last-child,
-[data-testid="stExpander"] .element-container {
-    background-color: transparent !important;
-    color: var(--text-primary) !important;
-    padding: 20px !important;
+[data-testid="stExpander"] > div:last-child {
+    background-color: var(--bg-primary) !important; /* Светлый фон для контента */
+    color: var(--text-primary) !important; /* Контрастный текст */
+    padding: 12px 16px !important;
 }
-[data-testid="stExpander"] p,
-[data-testid="stExpander"] span,
-[data-testid="stExpander"] div,
-[data-testid="stExpander"] h1,
-[data-testid="stExpander"] h2,
-[data-testid="stExpander"] h3,
-[data-testid="stExpander"] label,
-[data-testid="stExpander"] code {
-    color: var(--text-primary) !important;
-    background-color: transparent !important;
+
+/* Компактные колонки внутри expander */
+[data-testid="stExpander"] [data-testid="column"] {
+    padding: 8px !important;
 }
+
+/* Компактные элементы */
 [data-testid="stExpander"] [data-testid="stMarkdown"] {
-    color: var(--text-primary) !important;
+    margin: 6px 0 !important;
 }
-[data-testid="stExpander"] > div {
-    background-color: transparent !important;
+
+[data-testid="stExpander"] h2 {
+    margin: 10px 0 6px 0 !important;
 }
-[data-testid="stExpander"] [data-testid="stCaptionContainer"],
-[data-testid="stExpander"] .caption {
-    color: var(--text-secondary) !important;
-    background-color: transparent !important;
+
+[data-testid="stExpander"] h3 {
+    margin: 8px 0 4px 0 !important;
 }
-[data-testid="stExpander"] [data-baseweb="tag"] {
-    background: linear-gradient(135deg, var(--bg-hover) 0%, var(--bg-secondary) 100%) !important;
-    color: var(--text-primary) !important;
-    border: 1px solid var(--border-light) !important;
+
+[data-testid="stExpander"] p {
+    margin: 4px 0 !important;
 }
-[data-testid="stExpander"] [data-testid="column"],
-[data-testid="stExpander"] [data-testid="column"] > div {
-    background-color: transparent !important;
+
+[data-testid="stExpander"] [data-testid="stCaptionContainer"] {
+    margin: 3px 0 !important;
+    font-size: 12px !important;
 }
-[data-testid="stExpander"] * {
-    background-color: transparent !important;
+
+[data-testid="stExpander"] hr {
+    margin: 10px 0 !important;
 }
-[data-testid="stExpander"] {
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
+
+[data-testid="stExpander"] code {
+    padding: 3px 6px !important;
+    font-size: 12px !important;
 }
-.streamlit-expanderHeader {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%) !important;
+
+[data-testid="stExpander"] textarea {
+    margin: 8px 0 !important;
+    padding: 10px !important;
 }
-[data-testid="stExpander"] *:not(button):not(input):not(textarea) {
-    color: var(--text-primary) !important;
+
+[data-testid="stExpander"] .stButton > button,
+[data-testid="stExpander"] [data-testid="stLinkButton"] {
+    margin: 6px 0 !important;
 }
+
 /* ============================================
-   ВКЛАДКА ПРОСМОТРА - ЗЕЛЕНЫЙ ЭФФЕКТ НАВЕДЕНИЯ НА ПОСТЫ
+   ЗЕЛЕНЫЙ HOVER ЭФФЕКТ НА ПОСТАХ - БЕЗ АНИМАЦИЙ
    ============================================ */
+
+/* Статичный hover без мигания */
 [data-testid="stExpander"]:hover {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%) !important;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
     border: 2px solid #22c55e !important;
     box-shadow:
         0 8px 30px rgba(34, 197, 94, 0.3),
         0 0 40px rgba(34, 197, 94, 0.2) !important;
-    transform: translateY(-4px) scale(1.01) !important;
+    transform: translateY(-2px) scale(1.005) !important;
 }
+
 .streamlit-expanderHeader:hover {
     background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
     color: #065f46 !important;
     border-left: 5px solid #10b981 !important;
     padding-left: 15px !important;
 }
+
 [data-testid="stExpander"][aria-expanded="true"] {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
     border: 3px solid #10b981 !important;
     box-shadow:
-        0 10px 40px rgba(16, 185, 129, 0.4),
-        0 0 60px rgba(16, 185, 129, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+        0 10px 40px #10b98166,
+        0 0 60px #10b9814d,
+        inset 0 1px 0 #ffffff80;
 }
-[data-testid="stExpander"][aria-expanded="true"] .streamlit-expanderHeader {
-    background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%) !important;
+
+[data-testid="stExpander"][aria-expanded="true"] .streamlit-expanderHeader,
+[data-testid="stExpander"][aria-expanded="true"] > div > .streamlit-expanderHeader,
+[data-testid="stExpander"][aria-expanded="true"] details > summary {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
     color: #065f46 !important;
     border-left: 6px solid #34d399 !important;
     font-weight: 900 !important;
+    padding-left: 15px !important;
 }
-@keyframes pulseGreen {
-    0%, 100% {
-        box-shadow:
-            0 8px 30px rgba(34, 197, 94, 0.3),
-            0 0 40px rgba(34, 197, 94, 0.2);
-    }
-    50% {
-        box-shadow:
-            0 10px 40px rgba(34, 197, 94, 0.4),
-            0 0 60px rgba(34, 197, 94, 0.3);
-    }
-}
-[data-testid="stExpander"]:hover {
-    animation: pulseGreen 2s ease-in-out infinite !important;
-}
-[data-testid="stExpander"]:active {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
-    border-color: #34d399 !important;
-    box-shadow:
-        0 6px 25px rgba(52, 211, 153, 0.5),
-        0 0 50px rgba(52, 211, 153, 0.4) !important;
-    transform: translateY(-2px) scale(1.005) !important;
-}
-.streamlit-expanderHeader:hover svg {
-    color: #10b981 !important;
-}
+
 /* ============================================
-   ТЕКСТОВЫЕ ОБЛАСТИ
-   ============================================ */
-.stTextArea textarea, .stTextInput input {
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
-    color: var(--text-primary) !important;
-    border: 2px solid var(--border-light) !important;
-    border-radius: 10px !important;
-    transition: all 0.3s ease !important;
-}
-.stTextArea textarea:focus, .stTextInput input:focus {
-    border-color: #dc2626 !important;
-    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1) !important;
-}
-/* ============================================
-   УЛУЧШЕННАЯ АНАЛИТИКА
-   ============================================ */
-[data-testid="stArrowVegaLiteChart"] {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
-    border-radius: 16px !important;
-    padding: 28px !important;
-    border: 2px solid #e2e8f0 !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
-    transition: all 0.3s ease !important;
-}
-[data-testid="stArrowVegaLiteChart"]:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
-    transform: translateY(-4px) !important;
-}
-[data-testid="stArrowVegaLiteChart"] canvas {
-    background-color: transparent !important;
-}
-.element-container:has([data-testid="stArrowVegaLiteChart"]) {
-    background-color: transparent !important;
-    border-radius: 16px !important;
-    padding: 12px !important;
-}
-[data-theme="dark"] [data-testid="stArrowVegaLiteChart"] {
-    background: linear-gradient(135deg, #1e293b 0%, #dbe6ff 100%) !important;
-    border-color: #334155 !important;
-}
-[data-theme="blue"] [data-testid="stArrowVegaLiteChart"] {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
-    border-color: #93c5fd !important;
-}
-/* ============================================
-   УЛУЧШЕННЫЕ СЕКЦИИ
-   ============================================ */
-.telegram-section button[kind="primary"] {
-    background: linear-gradient(135deg, #0088CC 0%, #00A0E9 100%) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 14px !important;
-    padding: 16px 32px !important;
-    font-weight: 800 !important;
-    font-size: 17px !important;
-    box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    font-family: 'Inter', sans-serif !important;
-}
-.telegram-section button[kind="primary"]:hover {
-    background: linear-gradient(135deg, #0077B3 0%, #0088CC 100%) !important;
-    transform: translateY(-4px) scale(1.03) !important;
-    box-shadow: 0 12px 35px rgba(0, 136, 204, 0.5) !important;
-}
-.medium-section button[kind="primary"] {
-    background: var(--gradient-primary) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 14px !important;
-    padding: 16px 32px !important;
-    font-weight: 800 !important;
-    font-size: 17px !important;
-    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    font-family: 'Inter', sans-serif !important;
-}
-.medium-section button[kind="primary"]:hover {
-    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
-    transform: translateY(-4px) scale(1.03) !important;
-    box-shadow: 0 12px 35px rgba(220, 38, 38, 0.5) !important;
-}
-/* ============================================
-   УЛУЧШЕННЫЕ МЕТРИКИ
+   METRICS - КОМПАКТНЫЕ
    ============================================ */
 [data-testid="stMetric"] {
     background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
     border: 2px solid var(--border-light) !important;
-    border-radius: 16px !important;
-    padding: 24px !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
     box-shadow: var(--shadow-sm) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     position: relative !important;
     overflow: hidden !important;
 }
+
 [data-testid="stMetric"]::before {
     content: '' !important;
     position: absolute !important;
@@ -762,16 +582,19 @@ button[kind="secondary"] {
     opacity: 0 !important;
     transition: opacity 0.3s ease !important;
 }
+
 [data-testid="stMetric"]:hover {
-    box-shadow: var(--shadow-xl) !important;
-    transform: translateY(-4px) scale(1.02) !important;
+    box-shadow: var(--shadow-md) !important;
+    transform: translateY(-2px) scale(1.02) !important;
     border-color: var(--border-medium) !important;
 }
+
 [data-testid="stMetric"]:hover::before {
     opacity: 1 !important;
 }
+
 [data-testid="stMetricValue"] {
-    font-size: 36px !important;
+    font-size: 24px !important;
     font-weight: 800 !important;
     font-family: 'Inter', sans-serif !important;
     color: var(--text-primary) !important;
@@ -779,25 +602,30 @@ button[kind="secondary"] {
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
+    line-height: 1.2 !important;
 }
+
 [data-testid="stMetricLabel"] {
     color: var(--text-secondary) !important;
     font-weight: 600 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     font-size: 11px !important;
+    margin-bottom: 4px !important;
 }
+
 /* ============================================
-   УЛУЧШЕННЫЙ РАЗДЕЛИТЕЛЬ
+   DIVIDER
    ============================================ */
 hr {
     border: none !important;
     height: 2px !important;
     background: linear-gradient(90deg, transparent, var(--border-light), transparent) !important;
-    margin: 32px 0 !important;
+    margin: 1rem 0 !important;
 }
+
 /* ============================================
-   УЛУЧШЕННЫЕ БЛОКИ КОДА
+   CODE BLOCKS
    ============================================ */
 code {
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-hover) 100%) !important;
@@ -809,289 +637,109 @@ code {
     font-weight: 500 !important;
     border: 1px solid var(--border-light) !important;
 }
+
 /* ============================================
-   УЛУЧШЕННЫЕ ТАБЛИЦЫ ДАННЫХ
+   STATUS BADGES - КОМПАКТНЫЕ
    ============================================ */
-[data-testid="stDataFrame"] {
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
-    border: 2px solid var(--border-light) !important;
-    border-radius: 16px !important;
-    overflow: hidden !important;
-    box-shadow: var(--shadow-md) !important;
+.stSuccess,
+[data-testid="stNotification"][kind="success"] {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%) !important;
+    border: 2px solid #10b981 !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    color: #065f46 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2) !important;
+    transition: all 0.3s ease !important;
 }
+
+.stWarning,
+[data-testid="stNotification"][kind="warning"] {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%) !important;
+    border: 2px solid #f59e0b !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    color: #78350f !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+
+.stInfo {
+    background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 50%, #60a5fa 100%) !important;
+    border: 2px solid #3b82f6 !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.2) !important;
+}
+
+.stError {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+    border: 2px solid #ef4444 !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    color: #7f1d1d !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2) !important;
+}
+
 /* ============================================
-   УЛУЧШЕННЫЙ ПОЛОСА ПРОКРУТКИ
+   SCROLLBAR
    ============================================ */
 ::-webkit-scrollbar {
     width: 12px !important;
     height: 12px !important;
 }
+
 ::-webkit-scrollbar-track {
     background: var(--bg-secondary) !important;
     border-radius: 10px !important;
 }
+
 ::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, #cbd5e1, #94a3b8) !important;
     border-radius: 10px !important;
     border: 2px solid var(--bg-secondary) !important;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #94a3b8, #64748b) !important;
 }
+
 /* ============================================
-   СТАТУС QDRANT - УЛУЧШЕННЫЕ БЕЙДЖИ
+   FIX: Prevent dark header when expanded
    ============================================ */
-[data-testid="stExpander"] .stSuccess,
-[data-testid="stExpander"] [data-testid="stNotification"][kind="success"] {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%) !important;
-    border: 3px solid #10b981 !important;
-    border-radius: 14px !important;
-    padding: 16px 20px !important;
-    color: #065f46 !important;
-    font-weight: 800 !important;
-    font-size: 15px !important;
-    box-shadow:
-        0 4px 20px rgba(16, 185, 129, 0.3),
-        0 0 0 0 rgba(16, 185, 129, 0.4) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    text-align: center !important;
-    position: relative !important;
-    overflow: hidden !important;
+
+/* Force light background for ALL header states */
+[data-testid="stExpander"] .streamlit-expanderHeader,
+[data-testid="stExpander"] details summary,
+[data-testid="stExpander"] summary {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
 }
-[data-testid="stExpander"] .stSuccess::before {
-    content: '✓' !important;
-    position: absolute !important;
-    left: 10px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    font-size: 20px !important;
-    font-weight: 900 !important;
-    color: #10b981 !important;
-}
-[data-testid="stExpander"] .stSuccess:hover {
-    transform: translateY(-3px) scale(1.05) !important;
-    box-shadow:
-        0 8px 30px rgba(16, 185, 129, 0.4),
-        0 0 40px rgba(16, 185, 129, 0.3) !important;
-    border-color: #059669 !important;
-}
-[data-testid="stExpander"] .stWarning,
-[data-testid="stExpander"] [data-testid="stNotification"][kind="warning"] {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%) !important;
-    border: 3px solid #f59e0b !important;
-    border-radius: 14px !important;
-    padding: 16px 20px !important;
-    color: #78350f !important;
-    font-weight: 800 !important;
-    font-size: 15px !important;
-    box-shadow:
-        0 4px 20px rgba(245, 158, 11, 0.3),
-        0 0 0 0 rgba(245, 158, 11, 0.4) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    text-align: center !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-[data-testid="stExpander"] .stWarning::before {
-    content: '!' !important;
-    position: absolute !important;
-    left: 10px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    font-size: 20px !important;
-    font-weight: 900 !important;
-    color: #f59e0b !important;
-}
-[data-testid="stExpander"] .stWarning:hover {
-    transform: translateY(-3px) scale(1.05) !important;
-    box-shadow:
-        0 8px 30px rgba(245, 158, 11, 0.4),
-        0 0 40px rgba(245, 158, 11, 0.3) !important;
-    border-color: #d97706 !important;
-}
-.stSuccess *, .stWarning * {
-    color: inherit !important;
-    font-weight: 800 !important;
-}
-[data-testid="stExpander"] .stInfo {
-    background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 50%, #60a5fa 100%) !important;
-    border: 3px solid #3b82f6 !important;
-    border-radius: 14px !important;
-    padding: 16px 20px !important;
-    color: #1e3a8a !important;
-    font-weight: 800 !important;
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3) !important;
-    transition: all 0.3s ease !important;
-}
-[data-testid="stExpander"] .stInfo:hover {
-    transform: translateY(-3px) scale(1.05) !important;
-    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4) !important;
-}
-/* ============================================
-   ПРОСМОТРЩИК - ДОПОЛНИТЕЛЬНЫЕ ЦВЕТОВЫЕ АКЦЕНТЫ
-   ============================================ */
-[data-testid="stExpander"] [data-testid="stMetric"] {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
-    border: 2px solid #86efac !important;
-}
-[data-testid="stExpander"] [data-testid="stMetric"]:hover {
-    border-color: #22c55e !important;
-    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3) !important;
-}
-[data-testid="stExpander"] .stAlert[kind="info"] {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
-    border: 2px solid #3b82f6 !important;
-    color: #1e3a8a !important;
-}
-[data-testid="stExpander"] .stAlert[kind="error"] {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
-    border: 2px solid #ef4444 !important;
-    color: #7f1d1d !important;
-}
-[data-testid="stExpander"] ::selection {
-    background-color: #bbf7d0 !important;
-    color: #065f46 !important;
-}
-[data-testid="stExpander"] a,
-[data-testid="stExpander"] [data-testid="stLinkButton"] {
-    color: #10b981 !important;
-    transition: all 0.3s ease !important;
-}
-[data-testid="stExpander"] a:hover,
-[data-testid="stExpander"] [data-testid="stLinkButton"]:hover {
-    color: #22c55e !important;
-    text-decoration: underline !important;
-    transform: translateX(4px) !important;
-}
-[data-testid="stExpander"] code {
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%) !important;
-    color: #374151 !important;
-    border: 1px solid #d1d5db !important;
-}
-[data-testid="stExpander"] [data-testid="stCaptionContainer"] {
-    color: #64748b !important;
-    font-style: italic !important;
-}
-[data-testid="stExpander"] hr {
-    background: linear-gradient(90deg,
-        transparent,
-        #bbf7d0 20%,
-        #34d399 50%,
-        #bbf7d0 80%,
-        transparent
-    ) !important;
-    height: 2px !important;
-}
-[data-testid="stExpander"] button:hover {
+
+/* Light green when hovering */
+[data-testid="stExpander"]:hover .streamlit-expanderHeader,
+[data-testid="stExpander"]:hover details summary {
     background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
-    border-color: #22c55e !important;
     color: #065f46 !important;
 }
-[data-testid="stExpander"] [data-testid="column"] {
-    border-right: 1px solid rgba(34, 197, 94, 0.1) !important;
-    padding: 16px !important;
-}
-[data-testid="stExpander"] [data-testid="column"]:last-child {
-    border-right: none !important;
-}
-[data-testid="stExpander"] [data-testid="column"]:nth-child(1) {
-    border-left: 4px solid #3b82f6 !important;
-}
-[data-testid="stExpander"] [data-testid="column"]:nth-child(2) {
-    border-left: 4px solid #22c55e !important;
-}
-[data-testid="stExpander"] [data-testid="column"]:nth-child(3) {
-    border-left: 4px solid #f59e0b !important;
-}
-/* ============================================
-   АНИМАЦИИ ЗАГРУЗКИ
-   ============================================ */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-[data-testid="stExpander"],
-[data-testid="stMetric"],
-.stButton > button {
-    animation: fadeIn 0.5s ease-out !important;
+
+/* Light green when expanded (not hovering) */
+[data-testid="stExpander"][aria-expanded="true"] .streamlit-expanderHeader,
+[data-testid="stExpander"][aria-expanded="true"] details summary {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
+    color: #065f46 !important;
+    border-left: 6px solid #34d399 !important;
 }
 
-/* === FORCE LIGHT BACKGROUND & DARK TEXT IN ALL DROPDOWNS === */
-[data-baseweb="popover"],
-[data-baseweb="menu"],
-[role="listbox"],
-ul[role="listbox"],
-div[role="listbox"] {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    border: 2px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1) !important;
-    padding: 4px 0 !important;
-    margin: 0 !important;
-}
-
-/* Ensure all list items inherit light background and dark text */
-[data-baseweb="menu"] li,
-ul[role="listbox"] li,
-div[role="listbox"] li {
-    background-color: transparent !important;
-    color: #0f172a !important;
-    padding: 6px 12px !important;
-    margin: 0 !important;
-    line-height: 1.3 !important;
-    border-radius: 6px !important;
-    transition: background-color 0.2s ease !important;
-}
-
-/* Hover state — subtle highlight */
-[data-baseweb="menu"] li:hover,
-ul[role="listbox"] li:hover,
-div[role="listbox"] li:hover {
-    background-color: #f1f5f9 !important;
-    color: #b91c1c !important;
-}
-
-/* === CRITICAL FIX: FORCE LIGHT DROPDOWN BACKGROUND === */
-/* Target the actual dropdown container used by Streamlit */
-div[data-baseweb="popover"] > div {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    border: 2px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1) !important;
-}
-
-/* Target menu items inside the dropdown */
-div[data-baseweb="popover"] [data-baseweb="menu"] li {
-    background-color: transparent !important;
-    color: #0f172a !important;
-    padding: 6px 12px !important;
-    margin: 0 !important;
-    line-height: 1.3 !important;
-}
-
-/* Hover state */
-div[data-baseweb="popover"] [data-baseweb="menu"] li:hover {
-    background-color: #f1f5f9 !important;
-    color: #b91c1c !important;
-}
-
-/* Ensure text inside items is always dark */
-div[data-baseweb="popover"] [data-baseweb="menu"] li * {
-    color: inherit !important;
-    background: transparent !important;
-}
-
-/* Also fix the select trigger button */
-div[data-baseweb="select"] > div {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    border: 2px solid #e2e8f0 !important;
+/* Even lighter when expanded AND hovering */
+[data-testid="stExpander"][aria-expanded="true"]:hover .streamlit-expanderHeader,
+[data-testid="stExpander"][aria-expanded="true"]:hover details summary {
+    background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%) !important;
 }

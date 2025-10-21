@@ -1,113 +1,146 @@
-"""Medium scraper."""
-import requests
+"""Medium scraper для парсинга статей по тегам через RSS."""
+import logging
 import time
+from typing import Optional, Callable
 from datetime import datetime
-from bs4 import BeautifulSoup
+import requests
+import feedparser
 from src.models.database import save_medium_article
+from src.utils.translations import t
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
-class MediumScraper:
-    """Scraper для Medium."""
+def scrape_medium_articles(
+        tags: list,
+        max_articles: int = 30,
+        delay: int = 3,
+        enable_llm: bool = False,
+        log_callback: Optional[Callable[[str, str], None]] = None
+):
+    """
+    Парсинг статей Medium по указанным тегам через RSS-ленты.
 
-    FREEDIUM_BASE = "https://freedium.cfd"
-    MEDIUM_BASE = "https://medium.com"
+    Args:
+        tags: Список тегов (e.g., ['tech', 'news'])
+        max_articles: Максимум статей для парсинга на тег
+        delay: Задержка между тегами в секундах
+        enable_llm: Включить редакторскую обработку через GPT-OSS
+        log_callback: Callback для логирования (message, level)
 
-    def __init__(self):
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0'
-        })
+    Returns:
+        Список словарей с результатами для каждого тега
+    """
 
-    def get_tag_articles(self, tag, max_articles=50):
-        """Получает статьи по тегу."""
-        tag_url = f"{self.MEDIUM_BASE}/tag/{tag}"
-        print(f"🔍 Парсинг тега: {tag}")
+    def log(message: str, level: str = "INFO"):
+        """Универсальная функция логирования."""
+        logger_func = getattr(logger, level.lower(), logger.info)
+        logger_func(message)
+        if log_callback:
+            log_callback(message, level)
 
-        try:
-            response = self.session.get(tag_url, timeout=10)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.text, 'html.parser')
-
-            articles = []
-            for link in soup.find_all('a', href=True):
-                href = link.get('href', '')
-                if 'medium.com' in href and '/' in href:
-                    article_url = href.split('?')[0]
-                    if article_url not in articles and len(articles) < max_articles:
-                        articles.append(article_url)
-
-            print(f"✅ Найдено {len(articles)} статей")
-            return articles[:max_articles]
-        except Exception as e:
-            print(f"❌ Ошибка: {e}")
-            return []
-
-    def scrape_article(self, url):
-        """Парсит статью."""
-        freedium_url = f"{self.FREEDIUM_BASE}/{url}"
-        try:
-            response = self.session.get(freedium_url, timeout=15)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.text, 'html.parser')
-
-            title = soup.find('h1')
-            title = title.get_text() if title else 'Untitled'
-
-            article_body = soup.find('article')
-            full_text = article_body.get_text(separator='\n', strip=True) if article_body else ''
-
-            return {
-                'url': url,
-                'title': title,
-                'author': 'Unknown',
-                'description': full_text[:300],
-                'full_text': full_text,
-                'claps': 0,
-                'published_date': datetime.utcnow(),
-                'is_paywalled': True,
-                'source': 'freedium'
-            }
-        except Exception as e:
-            print(f"❌ Ошибка: {e}")
-            return None
-
-
-def scrape_medium_tag(tag, max_articles=30, delay=3):
-    """Парсит статьи по тегу."""
-    scraper = MediumScraper()
-    article_urls = scraper.get_tag_articles(tag, max_articles)
-
-    if not article_urls:
-        return {'success': False, 'tag': tag}
-
-    saved_count = 0
-    skipped_count = 0
-
-    for url in article_urls:
-        article_data = scraper.scrape_article(url)
-        if article_data:
-            article_data['tags'] = tag
-            if save_medium_article(article_data):
-                saved_count += 1
-            else:
-                skipped_count += 1
-        time.sleep(delay)
-
-    print(f"✅ #{tag}: {saved_count} новых, {skipped_count} пропущено")
-
-    return {
-        'success': True,
-        'tag': tag,
-        'saved': saved_count,
-        'skipped': skipped_count
-    }
-
-
-def scrape_multiple_sources(users=None, tags=None, max_articles=30, delay=3):
-    """Парсит несколько источников."""
     results = []
-    if tags:
-        for tag in tags:
-            result = scrape_medium_tag(tag, max_articles, delay)
-            results.append(result)
+    log(f"Начало парсинга Medium: {len(tags)} тегов", "INFO")
+    log(f"Editorial обработка: {'Включена' if enable_llm else 'Отключена'}", "INFO")
+
+    for i, tag in enumerate(tags, 1):
+        log(f"[{i}/{len(tags)}] Обработка тега {tag}", "INFO")
+        saved_count = 0
+        skipped_count = 0
+        error_count = 0
+        editorial_processed_count = 0
+
+        try:
+            # Формируем URL для RSS-ленты тега
+            rss_url = f"https://medium.com/feed/tag/{tag.lower().replace(' ', '-')}"
+            response = requests.get(rss_url, timeout=10)
+            response.raise_for_status()
+            feed = feedparser.parse(response.content)
+
+            # Ограничение количества статей
+            entries = feed.entries[:max_articles]
+            log(f"Найдено {len(entries)} статей для тега {tag}", "INFO")
+
+            for entry in entries:
+                try:
+                    # Формирование данных статьи
+                    article_data = {
+                        'title': entry.get('title', ''),
+                        'url': entry.get('link', ''),
+                        'summary': entry.get('summary', '')[:500],
+                        'published_at': datetime.strptime(
+                            entry.get('published', datetime.utcnow().isoformat()),
+                            '%a, %d %b %Y %H:%M:%S %z'
+                        ).replace(tzinfo=None) if entry.get('published') else datetime.utcnow(),
+                        'author': entry.get('author', 'Unknown'),
+                        'tag': tag,
+                        'scraped_at': datetime.utcnow()
+                    }
+
+                    # Сохранение в БД
+                    saved = save_medium_article(article_data)
+                    if saved:
+                        saved_count += 1
+                        log(f"  ✓ Сохранено [{saved_count}]: {article_data['title'][:60] or 'No title'}...", "INFO")
+
+                        # Редакторская обработка
+                        if enable_llm:
+                            from src.services.editorial_service import get_editorial_service
+                            editorial = get_editorial_service()
+                            text = f"{article_data['title']}\n\n{article_data['summary']}".strip()
+                            result = editorial.process_post(article_data['title'], text, source="medium")
+
+                            if result.get('is_news') and not result.get('error'):
+                                editorial_processed_count += 1
+                                log(f"    → Editorial обработан", "INFO")
+                            elif result.get('error'):
+                                log(f"    → Editorial ошибка: {result['error']}", "WARNING")
+                    else:
+                        skipped_count += 1
+                        log(f"  ⊗ Пропущен: дубликат или ошибка", "DEBUG")
+
+                    # Задержка для соблюдения лимитов
+                    time.sleep(0.5)
+
+                except Exception as e:
+                    error_count += 1
+                    log(f"  ✗ Ошибка обработки статьи: {e}", "ERROR")
+                    continue
+
+            # Итоговая статистика по тегу
+            log(f"Завершено {tag}:", "INFO")
+            log(f"  • Сохранено: {saved_count}", "INFO")
+            log(f"  • Пропущено: {skipped_count}", "INFO")
+            log(f"  • Editorial обработано: {editorial_processed_count}", "INFO")
+            log(f"  • Ошибок: {error_count}", "WARNING" if error_count > 0 else "INFO")
+
+            results.append({
+                'success': True,
+                'tag': tag,
+                'saved': saved_count,
+                'skipped': skipped_count,
+                'editorial_processed': editorial_processed_count,
+                'errors': error_count
+            })
+
+        except Exception as e:
+            log(f"Ошибка парсинга тега {tag}: {e}", "ERROR")
+            results.append({
+                'success': False,
+                'tag': tag,
+                'error': str(e),
+                'saved': 0,
+                'skipped': 0,
+                'editorial_processed': 0,
+                'errors': 1
+            })
+
+        if i < len(tags):
+            time.sleep(delay)
+
+    log("Массовый парсинг Medium завершен", "INFO")
     return results

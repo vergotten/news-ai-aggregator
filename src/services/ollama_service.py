@@ -1,7 +1,7 @@
 """Сервис для работы с Ollama LLM."""
 import os
 import logging
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -14,7 +14,8 @@ class OllamaService:
     Клиент для взаимодействия с Ollama API.
 
     Предоставляет методы для:
-    - генерации текста
+    - генерации текста через /api/generate
+    - чат-режим через /api/chat (с поддержкой system prompts)
     - создания embeddings
     - суммаризации
     - извлечения ключевых слов
@@ -24,8 +25,8 @@ class OllamaService:
     def __init__(
             self,
             base_url: Optional[str] = None,
-            model: str = "llama3.2",
-            timeout: int = 120,
+            model: Optional[str] = None,
+            timeout: int = 300,
             max_retries: int = 3
     ):
         """
@@ -33,20 +34,19 @@ class OllamaService:
 
         Args:
             base_url: URL Ollama API. Если None, берется из OLLAMA_BASE_URL env.
-            model: Название модели для генерации текста.
+            model: Название модели для генерации текста. Если None, из env.
             timeout: Таймаут запроса в секундах.
             max_retries: Количество попыток при ошибке.
         """
         self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
-        self.model = model
+        self.model = model or os.getenv("OLLAMA_MODEL", "gpt-oss:20b")  # llama3.2:3b
         self.timeout = timeout
 
         # Настройка HTTP сессии с автоматическими повторами
-        # Используется для устойчивости к временным сбоям сети
         self.session = requests.Session()
         retry_strategy = Retry(
             total=max_retries,
-            backoff_factor=1,  # экспоненциальная задержка: 1s, 2s, 4s
+            backoff_factor=1,
             status_forcelist=[429, 500, 502, 503, 504],
             allowed_methods=["POST"]
         )
@@ -70,6 +70,77 @@ class OllamaService:
             logger.error(f"Ollama health check failed: {e}")
             return False
 
+    def chat(
+            self,
+            messages: List[Dict[str, str]],
+            temperature: float = 0.7,
+            max_tokens: Optional[int] = None,
+            stream: bool = False
+    ) -> Optional[str]:
+        """
+        Чат-режим с поддержкой system prompts через /api/chat.
+
+        Args:
+            messages: Список сообщений в формате [{"role": "system/user/assistant", "content": "..."}]
+            temperature: Температура сэмплирования (0.0 - детерминировано, 1.0 - креативно).
+            max_tokens: Максимальное количество токенов для генерации.
+            stream: Потоковая генерация (не реализовано).
+
+        Returns:
+            Сгенерированный текст или None при ошибке.
+
+        Examples:
+            >>> messages = [
+            ...     {"role": "system", "content": "You are a helpful assistant"},
+            ...     {"role": "user", "content": "Hello!"}
+            ... ]
+            >>> response = ollama.chat(messages)
+        """
+        if stream:
+            raise NotImplementedError("Потоковая генерация не реализована")
+
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "stream": False,
+            "options": {
+                "temperature": temperature
+            }
+        }
+
+        if max_tokens:
+            payload["options"]["num_predict"] = max_tokens
+
+        try:
+            logger.debug(f"Отправка chat запроса к {self.base_url}/api/chat")
+            response = self.session.post(
+                f"{self.base_url}/api/chat",
+                json=payload,
+                timeout=self.timeout
+            )
+            response.raise_for_status()
+
+            data = response.json()
+
+            # В /api/chat ответ находится в message.content
+            if "message" in data and "content" in data["message"]:
+                return data["message"]["content"].strip()
+            else:
+                logger.error(f"Неожиданный формат ответа: {data}")
+                return None
+
+        except requests.Timeout:
+            logger.error(f"Ollama request timeout after {self.timeout}s")
+            return None
+        except requests.RequestException as e:
+            logger.error(f"Ollama request failed: {e}")
+            if hasattr(e, 'response') and hasattr(e.response, 'text'):
+                logger.error(f"Response body: {e.response.text[:500]}")
+            return None
+        except (KeyError, ValueError) as e:
+            logger.error(f"Invalid response format: {e}")
+            return None
+
     def generate(
             self,
             prompt: str,
@@ -81,6 +152,9 @@ class OllamaService:
         """
         Генерация текста через LLM.
 
+        Если передан system prompt, автоматически использует /api/chat,
+        иначе использует /api/generate для простых запросов.
+
         Args:
             prompt: Пользовательский промт (основной запрос).
             system: Системный промт (инструкция для модели).
@@ -91,6 +165,15 @@ class OllamaService:
         Returns:
             Сгенерированный текст или None при ошибке.
         """
+        # Если есть system prompt, используем chat API
+        if system:
+            messages = [
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt}
+            ]
+            return self.chat(messages, temperature, max_tokens, stream)
+
+        # Иначе используем generate API
         if stream:
             raise NotImplementedError("Потоковая генерация не реализована")
 
@@ -103,13 +186,11 @@ class OllamaService:
             }
         }
 
-        if system:
-            payload["system"] = system
-
         if max_tokens:
             payload["options"]["num_predict"] = max_tokens
 
         try:
+            logger.debug(f"Отправка generate запроса к {self.base_url}/api/generate")
             response = self.session.post(
                 f"{self.base_url}/api/generate",
                 json=payload,
@@ -125,12 +206,14 @@ class OllamaService:
             return None
         except requests.RequestException as e:
             logger.error(f"Ollama request failed: {e}")
+            if hasattr(e, 'response') and hasattr(e.response, 'text'):
+                logger.error(f"Response body: {e.response.text[:500]}")
             return None
         except (KeyError, ValueError) as e:
             logger.error(f"Invalid response format: {e}")
             return None
 
-    def get_embedding(self, text: str, model: str = "nomic-embed-text") -> Optional[list]:
+    def get_embedding(self, text: str, model: Optional[str] = None) -> Optional[List[float]]:
         """
         Генерация embedding вектора для текста.
 
@@ -139,13 +222,15 @@ class OllamaService:
 
         Args:
             text: Входной текст для векторизации.
-            model: Название embedding модели.
+            model: Название embedding модели. Если None, использует env или nomic-embed-text.
 
         Returns:
             Список из 768 чисел (вектор) или None при ошибке.
         """
+        embedding_model = model or os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
+
         payload = {
-            "model": model,
+            "model": embedding_model,
             "prompt": text
         }
 
