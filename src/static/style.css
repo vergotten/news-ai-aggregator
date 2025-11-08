@@ -4,7 +4,7 @@
 :root {
     --bg-primary: #ffffff;
     --bg-secondary: #f8fafc;
-    --bg-hover: #fee2e2;
+    --bg-hover: #f3f4f6;
     --bg-tertiary: #fafbfc;
     --text-primary: #0f172a;
     --text-secondary: #64748b;
@@ -15,7 +15,7 @@
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-    --gradient-primary: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #3b82f6 100%);
     --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --gradient-info: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
@@ -56,16 +56,17 @@ html, body, [data-testid="stAppViewContainer"] {
 
 .main {
     background-color: var(--bg-primary) !important;
-    padding: 1rem 1rem 10rem !important;
+    padding: 0.5rem 0.5rem 10rem !important;
 }
 
 .block-container {
     background-color: var(--bg-primary) !important;
-    padding-top: 3rem !important;
+    padding-top: 2rem !important;
     padding-bottom: 3rem !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    max-width: 1200px !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    max-width: none !important;
+    width: 100% !important;
 }
 
 *, h1, h2, h3, h4, h5, h6, p, span, div, label {
@@ -181,9 +182,9 @@ h3 {
 [data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"] {
     color: var(--text-primary) !important;
     font-weight: 700 !important;
-    border-bottom-color: #dc2626 !important;
+    border-bottom-color: #764ba2 !important;
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-hover) 100%) !important;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15) !important;
+    box-shadow: 0 4px 12px rgba(118, 75, 162, 0.15) !important;
 }
 
 /* ============================================
@@ -201,8 +202,8 @@ input, textarea, select {
 }
 
 input:focus, textarea:focus, select:focus {
-    border-color: #dc2626 !important;
-    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1) !important;
+    border-color: #764ba2 !important;
+    box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.1) !important;
     outline: none !important;
     transform: translateY(-2px) !important;
 }
@@ -230,10 +231,10 @@ input:focus, textarea:focus, select:focus {
 [role="listbox"],
 ul[role="listbox"],
 div[role="listbox"] {
-    background-color: var(--bg-primary) !important; /* Light background, e.g., #ffffff */
+    background-color: var(--bg-primary) !important;
     background: var(--bg-primary) !important;
-    color: var(--text-primary) !important; /* e.g., #0f172a */
-    border: 2px solid var(--border-light) !important; /* e.g., #e2e8f0 */
+    color: var(--text-primary) !important;
+    border: 2px solid var(--border-light) !important;
     border-radius: 12px !important;
     box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1) !important;
 }
@@ -249,7 +250,7 @@ div[role="listbox"] {
 ul[role="listbox"] li,
 div[role="listbox"] li {
     background-color: transparent !important;
-    color: var(--text-primary) !important; /* e.g., #0f172a */
+    color: var(--text-primary) !important;
     padding: 8px 12px !important;
     cursor: pointer !important;
     border-radius: 6px !important;
@@ -258,13 +259,13 @@ div[role="listbox"] li {
 
 [data-baseweb="menu"] li:hover,
 ul[role="listbox"] li:hover {
-    background-color: var(--bg-hover) !important; /* e.g., #fee2e2 */
-    color: var(--text-primary) !important; /* e.g., #0f172a */
+    background-color: var(--bg-hover) !important;
+    color: var(--text-primary) !important;
 }
 
 [aria-selected="true"] {
-    background-color: var(--bg-hover) !important; /* e.g., #fee2e2 */
-    color: var(--gradient-primary, #dc2626) !important;
+    background-color: var(--bg-hover) !important;
+    color: #764ba2 !important;
     font-weight: 600 !important;
 }
 
@@ -272,32 +273,48 @@ ul[role="listbox"] li:hover {
    TAGS
    ============================================ */
 [data-baseweb="tag"] {
-    background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%) !important;
-    color: #dc2626 !important;
-    border: 2px solid #fecaca !important;
+    background: linear-gradient(135deg, #f3e7fc 0%, #e7e9fc 100%) !important;
+    color: #764ba2 !important;
+    border: 2px solid #d9c7ec !important;
     border-radius: 10px !important;
     padding: 6px 12px !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     font-family: 'Inter', sans-serif !important;
-    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1) !important;
+    box-shadow: 0 2px 4px rgba(118, 75, 162, 0.1) !important;
 }
 
 [data-baseweb="tag"]:hover {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
-    border-color: #f87171 !important;
+    background: linear-gradient(135deg, #e7d5f7 0%, #d9dcec 100%) !important;
+    border-color: #c9a2e3 !important;
     transform: translateY(-2px) scale(1.05) !important;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(118, 75, 162, 0.2) !important;
 }
 
 /* ============================================
-   REDDIT SECTION - КРАСНАЯ КНОПКА
+   HABR SECTION - PREMIUM PURPLE-BLUE BUTTON
    ============================================ */
-.reddit-section button,
-.reddit-section .stButton button,
-.reddit-section button[kind="primary"],
-.reddit-section .stButton > button {
+.habr-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important;
+    padding: 24px !important;
+    border-radius: 20px !important;
+    border: 2px solid rgba(118, 75, 162, 0.3) !important;
+    background: linear-gradient(
+        135deg,
+        rgba(118, 75, 162, 0.03) 0%,
+        transparent 50%,
+        rgba(59, 130, 246, 0.03) 100%
+    ) !important;
+    box-shadow: 0 4px 20px rgba(118, 75, 162, 0.08) !important;
+}
+
+.habr-section button,
+.habr-section .stButton button,
+.habr-section button[kind="primary"],
+.habr-section .stButton > button {
     background: var(--gradient-primary) !important;
     color: #ffffff !important;
     border: none !important;
@@ -308,90 +325,67 @@ ul[role="listbox"] li:hover {
     letter-spacing: 2px !important;
     text-transform: uppercase !important;
     box-shadow:
-        0 0 25px rgba(220, 38, 38, 0.6),
-        0 0 50px rgba(220, 38, 38, 0.4),
-        0 10px 40px rgba(220, 38, 38, 0.5),
+        0 0 25px rgba(118, 75, 162, 0.6),
+        0 0 50px rgba(59, 130, 246, 0.4),
+        0 10px 40px rgba(102, 126, 234, 0.5),
         inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     position: relative !important;
     overflow: hidden !important;
-    animation: pulseRedEnhanced 3s ease-in-out infinite !important;
+    animation: pulsePurpleBlueEnhanced 3s ease-in-out infinite !important;
 }
 
-@keyframes pulseRedEnhanced {
+@keyframes pulsePurpleBlueEnhanced {
     0%, 100% {
         box-shadow:
-            0 0 25px rgba(220, 38, 38, 0.6),
-            0 0 50px rgba(220, 38, 38, 0.4),
-            0 10px 40px rgba(220, 38, 38, 0.5),
+            0 0 25px rgba(118, 75, 162, 0.6),
+            0 0 50px rgba(59, 130, 246, 0.4),
+            0 10px 40px rgba(102, 126, 234, 0.5),
             inset 0 1px 0 rgba(255, 255, 255, 0.3);
         transform: scale(1);
     }
     50% {
         box-shadow:
-            0 0 35px rgba(220, 38, 38, 0.8),
-            0 0 70px rgba(220, 38, 38, 0.6),
-            0 15px 50px rgba(220, 38, 38, 0.7),
+            0 0 35px rgba(118, 75, 162, 0.8),
+            0 0 70px rgba(59, 130, 246, 0.6),
+            0 15px 50px rgba(102, 126, 234, 0.7),
             inset 0 1px 0 rgba(255, 255, 255, 0.4);
         transform: scale(1.02);
     }
 }
 
-.reddit-section button::before,
-.reddit-section .stButton button::before {
+.habr-section button::before,
+.habr-section .stButton button::before {
     content: '' !important;
     position: absolute !important;
-    top: -50% !important;
-    left: -50% !important;
-    width: 200% !important;
-    height: 200% !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
     background: linear-gradient(
-        45deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.4) 50%,
-        transparent 70%
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
     ) !important;
-    animation: shine 4s ease-in-out infinite !important;
+    transition: left 0.5s !important;
 }
 
-@keyframes shine {
-    0% {
-        transform: translateX(-100%) translateY(-100%) rotate(45deg);
-        opacity: 0;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateX(100%) translateY(100%) rotate(45deg);
-        opacity: 0;
-    }
+.habr-section button:hover::before,
+.habr-section .stButton button:hover::before {
+    left: 100% !important;
 }
 
-.reddit-section button:hover,
-.reddit-section .stButton button:hover {
-    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #ef4444 100%) !important;
+.habr-section button:hover,
+.habr-section .stButton button:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #764ba2 50%, #2563eb 100%) !important;
     transform: translateY(-6px) scale(1.05) !important;
     box-shadow:
-        0 0 40px rgba(220, 38, 38, 0.9),
-        0 0 80px rgba(220, 38, 38, 0.7),
-        0 20px 60px rgba(220, 38, 38, 0.8),
+        0 0 40px rgba(118, 75, 162, 0.9),
+        0 0 80px rgba(59, 130, 246, 0.7),
+        0 20px 60px rgba(102, 126, 234, 0.8),
         inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
     animation: none !important;
-}
-
-.reddit-section {
-    position: relative !important;
-    padding: 24px !important;
-    border-radius: 20px !important;
-    border: 2px solid rgba(220, 38, 38, 0.3) !important;
-    background: linear-gradient(
-        135deg,
-        rgba(220, 38, 38, 0.03) 0%,
-        transparent 50%,
-        rgba(220, 38, 38, 0.03) 100%
-    ) !important;
-    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.08) !important;
 }
 
 /* ============================================
@@ -400,7 +394,7 @@ ul[role="listbox"] li:hover {
 .stButton > button {
     background: var(--gradient-primary) !important;
     color: #ffffff !important;
-    border: 2px solid rgba(220, 38, 38, 0.3) !important;
+    border: 2px solid rgba(118, 75, 162, 0.3) !important;
     border-radius: 10px !important;
     padding: 10px 20px !important;
     font-weight: 600 !important;
@@ -411,18 +405,38 @@ ul[role="listbox"] li:hover {
     overflow: hidden !important;
 }
 
+.stButton > button::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    ) !important;
+    transition: left 0.5s !important;
+}
+
+.stButton > button:hover::before {
+    left: 100% !important;
+}
+
 .stButton > button:hover {
-    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
-    border-color: #ef4444 !important;
+    background: linear-gradient(135deg, #5a67d8 0%, #764ba2 100%) !important;
+    border-color: #3b82f6 !important;
     transform: translateY(-2px) !important;
     box-shadow: var(--shadow-md) !important;
 }
 
 [data-testid="stLinkButton"] > a,
 a[data-testid="stLinkButton"] {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
-    color: #dc2626 !important;
-    border: 2px solid #f87171 !important;
+    background: linear-gradient(135deg, #f3e7fc 0%, #e7e9fc 100%) !important;
+    color: #764ba2 !important;
+    border: 2px solid #d9c7ec !important;
     border-radius: 10px !important;
     padding: 10px 20px !important;
     font-weight: 600 !important;
@@ -433,11 +447,11 @@ a[data-testid="stLinkButton"] {
 
 [data-testid="stLinkButton"] > a:hover,
 a[data-testid="stLinkButton"]:hover {
-    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%) !important;
-    color: #b91c1c !important;
-    border-color: #dc2626 !important;
+    background: linear-gradient(135deg, #e7d5f7 0%, #d9dcec 100%) !important;
+    color: #5a67d8 !important;
+    border-color: #764ba2 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3) !important;
 }
 
 /* ============================================
@@ -466,17 +480,15 @@ a[data-testid="stLinkButton"]:hover {
 
 .streamlit-expanderContent,
 [data-testid="stExpander"] > div:last-child {
-    background-color: var(--bg-primary) !important; /* Светлый фон для контента */
-    color: var(--text-primary) !important; /* Контрастный текст */
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
     padding: 12px 16px !important;
 }
 
-/* Компактные колонки внутри expander */
 [data-testid="stExpander"] [data-testid="column"] {
     padding: 8px !important;
 }
 
-/* Компактные элементы */
 [data-testid="stExpander"] [data-testid="stMarkdown"] {
     margin: 6px 0 !important;
 }
@@ -520,8 +532,6 @@ a[data-testid="stLinkButton"]:hover {
 /* ============================================
    ЗЕЛЕНЫЙ HOVER ЭФФЕКТ НА ПОСТАХ - БЕЗ АНИМАЦИЙ
    ============================================ */
-
-/* Статичный hover без мигания */
 [data-testid="stExpander"]:hover {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
     border: 2px solid #22c55e !important;
@@ -715,22 +725,18 @@ code {
 /* ============================================
    FIX: Prevent dark header when expanded
    ============================================ */
-
-/* Force light background for ALL header states */
 [data-testid="stExpander"] .streamlit-expanderHeader,
 [data-testid="stExpander"] details summary,
 [data-testid="stExpander"] summary {
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
 }
 
-/* Light green when hovering */
 [data-testid="stExpander"]:hover .streamlit-expanderHeader,
 [data-testid="stExpander"]:hover details summary {
     background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
     color: #065f46 !important;
 }
 
-/* Light green when expanded (not hovering) */
 [data-testid="stExpander"][aria-expanded="true"] .streamlit-expanderHeader,
 [data-testid="stExpander"][aria-expanded="true"] details summary {
     background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
@@ -738,8 +744,251 @@ code {
     border-left: 6px solid #34d399 !important;
 }
 
-/* Even lighter when expanded AND hovering */
 [data-testid="stExpander"][aria-expanded="true"]:hover .streamlit-expanderHeader,
 [data-testid="stExpander"][aria-expanded="true"]:hover details summary {
     background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%) !important;
+}
+
+/* ============================================
+   BUTTON CONTAINER ALIGNMENT
+   ============================================ */
+.stButtonContainer {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 15px !important;
+}
+
+.stButtonContainer button:contains("Обновить"),
+.stButtonContainer button[data-testid="baseButton-secondary"]:first-child {
+    margin-left: auto !important;
+    order: 3 !important;
+}
+
+.stButtonContainer > div:first-child {
+    margin-left: auto !important;
+}
+
+.element-container:has(button:contains("Обновить")) {
+    display: flex !important;
+    justify-content: flex-end !important;
+}
+
+/* ============================================
+   FORCE FULL WIDTH FOR HABR LOGS - ИСПРАВЛЕНИЕ
+   ============================================ */
+
+/*
+ * Расширяем все дочерние контейнеры внутри Habr секции
+ */
+.habr-section > div,
+.habr-section .element-container,
+.habr-section .stVerticalBlock,
+.habr-section .stBlock {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/*
+ * Расширяем контейнеры с экспандерами логов
+ */
+.habr-section .element-container:has([data-testid="stExpander"]) {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/*
+ * Расширяем сами экспандеры логов
+ */
+.habr-section [data-testid="stExpander"] {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/*
+ * Расширяем контент внутри экспандеров
+ */
+.habr-section [data-testid="stExpander"] > div,
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/*
+ * Расширяем текстовые блоки внутри логов
+ */
+.habr-section [data-testid="stExpander"] [data-testid="stMarkdownContainer"],
+.habr-section [data-testid="stExpander"] [data-testid="stMarkdown"] {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/*
+ * Расширяем pre и code блоки для логов
+ */
+.habr-section [data-testid="stExpander"] pre,
+.habr-section [data-testid="stExpander"] code {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+}
+
+/*
+ * Убираем ограничения на ширину для всех элементов внутри Habr секции
+ */
+.habr-section * {
+    max-width: none !important;
+}
+
+/* ============================================
+   СТИЛИЗАЦИЯ ЛОГОВ ПАРСИНГА HABR
+   ============================================ */
+
+/*
+ * Улучшаем читаемость логов
+ */
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent {
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    background-color: #f8fafc !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+    overflow-x: auto !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+}
+
+/*
+ * Выделяем разные типы сообщений в логах
+ */
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent .log-info {
+    color: #0f172a !important;
+    font-weight: 500 !important;
+}
+
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent .log-warning {
+    color: #d97706 !important;
+    font-weight: 600 !important;
+}
+
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent .log-error {
+    color: #dc2626 !important;
+    font-weight: 700 !important;
+}
+
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent .log-success {
+    color: #059669 !important;
+    font-weight: 600 !important;
+}
+
+/*
+ * Улучшаем отображение временных меток
+ */
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent .timestamp {
+    color: #64748b !important;
+    font-weight: 400 !important;
+    margin-right: 8px !important;
+}
+
+/*
+ * Улучшаем отображение URL в логах
+ */
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent .url {
+    color: #2563eb !important;
+    text-decoration: underline !important;
+}
+
+/*
+ * Улучшаем отображение заголовков в логах
+ */
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent .title {
+    color: #7c3aed !important;
+    font-weight: 600 !important;
+}
+
+.habr-section {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.habr-section div,
+.habr-section [data-testid="stExpander"],
+.habr-section .element-container,
+.habr-section .stVerticalBlock {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.habr-section * {
+    max-width: none !important;
+}
+
+/* ============================================
+   AGGRESSIVE FULL WIDTH FIX FOR HABR LOGS
+   ============================================ */
+
+/* Force full width with maximum specificity */
+.main .block-container .habr-section,
+.main > div > div > div > div > .habr-section,
+[data-testid="stAppViewContainer"] .habr-section,
+.stApp .habr-section {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+}
+
+/* Force all containers inside habr-section */
+.habr-section > div,
+.habr-section div,
+.habr-section [data-testid="element-container"],
+.habr-section .element-container,
+.habr-section .stVerticalBlock,
+.habr-section .stVerticalBlock > div,
+.habr-section .stBlock,
+.habr-section .stBlock > div {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Force expanders to full width */
+.habr-section [data-testid="stExpander"],
+.habr-section .streamlit-expander,
+.habr-section details {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Force expander content */
+.habr-section [data-testid="stExpander"] > div,
+.habr-section [data-testid="stExpander"] .streamlit-expanderContent,
+.habr-section .streamlit-expander > div {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Force markdown containers */
+.habr-section [data-testid="stMarkdownContainer"],
+.habr-section [data-testid="stMarkdown"] {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Remove all width restrictions */
+.habr-section * {
+    max-width: none !important;
+    width: auto !important;
+}
+
+/* But keep specific elements full width */
+.habr-section [data-testid="stExpander"],
+.habr-section .element-container,
+.habr-section div[data-testid="element-container"] {
+    width: 100% !important;
+    max-width: 100% !important;
 }

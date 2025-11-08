@@ -1,15 +1,22 @@
+x-common-image-policy: &image-policy
+  pull_policy: missing  # Скачивает только если образа нет локально
+
 services:
+  # ============================================================================
+  # PostgreSQL Database
+  # ============================================================================
   postgres:
     image: postgres:15-alpine
     container_name: news-aggregator-db
     restart: unless-stopped
+    <<: *image-policy
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-newsaggregator}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme123}
       POSTGRES_DB: ${POSTGRES_DB:-news_aggregator}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5433"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -17,15 +24,40 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-newsaggregator} -d ${POSTGRES_DB:-news_aggregator}"]
       interval: 10s
       timeout: 5s
+      retries: 10
+      start_period: 60s
+    networks:
+      - news-aggregator-network
+
+  # ============================================================================
+  # Redis Cache/Log Storage
+  # ============================================================================
+  redis:
+    image: redis:latest
+    container_name: news-aggregator-redis
+    restart: unless-stopped
+    <<: *image-policy
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
       retries: 5
       start_period: 30s
     networks:
       - news-aggregator-network
 
+  # ============================================================================
+  # Qdrant Vector Database
+  # ============================================================================
   qdrant:
     image: qdrant/qdrant:latest
     container_name: news-aggregator-qdrant
     restart: unless-stopped
+    <<: *image-policy
     environment:
       QDRANT__TELEMETRY_DISABLED: "true"
       QDRANT__LOG_LEVEL: INFO
@@ -33,174 +65,234 @@ services:
       - "${QDRANT_PORT:-6333}:6333"
       - "${QDRANT_GRPC_PORT:-6334}:6334"
     volumes:
-      - qdrant_data:/qdrant/storage
+      - ./project_data/qdrant:/qdrant/storage
     networks:
       - news-aggregator-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:6333/healthz"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:6333/readyz"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
 
+  # ============================================================================
+  # Ollama LLM Server
+  # ============================================================================
   ollama:
     image: ollama/ollama:latest
     container_name: news-aggregator-ollama
     restart: unless-stopped
+    <<: *image-policy
     deploy:
       resources:
         reservations:
           devices:
-            - capabilities: [ gpu ]
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     environment:
       OLLAMA_HOST: "0.0.0.0:11434"
-      # Force GPU support
-      OLLAMA_NUM_GPU: 1
-      # Allow partial GPU usage (layers that fit in VRAM go to GPU, rest on CPU)
-      OLLAMA_MAX_LOADED_LAYERS: 20
-      # Optional: disable telemetry and adjust model cache
+      OLLAMA_NUM_GPU: ${OLLAMA_NUM_GPU:-1}
+      OLLAMA_MAX_LOADED_LAYERS: ${OLLAMA_MAX_LOADED_LAYERS:-20}
       OLLAMA_TELEMETRY: "false"
+      OLLAMA_KEEP_ALIVE: "24h"
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
     volumes:
-      - ollama_data:/root/.ollama
+      - ./project_data/ollama:/root/.ollama
     networks:
       - news-aggregator-network
     healthcheck:
-      test: [ "CMD", "ollama", "list" ]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
     runtime: nvidia
 
-
+  # ============================================================================
+  # Ollama Model Initializer (one-time setup)
+  # ============================================================================
   ollama-init:
     image: ollama/ollama:latest
     container_name: news-aggregator-ollama-init
-    depends_on:
-      ollama:
-        condition: service_healthy
+    <<: *image-policy
     volumes:
-      - ollama_data:/root/.ollama
+      - ./project_data/ollama:/root/.ollama
+      - ./scripts/ollama-models.txt:/tmp/models.txt:ro
     networks:
       - news-aggregator-network
     environment:
       OLLAMA_HOST: "http://ollama:11434"
-    entrypoint: [ "/bin/sh", "-c" ]
+    entrypoint: ["/bin/sh", "-c"]
     command:
       - |
         echo "=============================================="
-        echo "Ollama Model Initialization"
+        echo "🤖 Ollama Model Initialization"
         echo "=============================================="
         
-        echo "Waiting for Ollama server to be fully ready..."
-        sleep 15
+        # Ждём полной готовности Ollama
+        echo "⏳ Waiting for Ollama server..."
+        sleep 10
         
+        # Проверка подключения
+        until ollama list >/dev/null 2>&1; do
+          echo "   Ollama not ready, retrying in 5s..."
+          sleep 5
+        done
+        
+        echo "✓ Ollama server is ready!"
         echo ""
-        echo "Checking existing models..."
-        MODELS=$$(ollama list 2>/dev/null || echo "")
-        echo "$$MODELS"
+        
+        # Текущие модели
+        echo "📋 Current models:"
+        ollama list
         echo ""
         
         # ============================================
-        # Embeddings model (required for vectorization)
+        # Embeddings model (REQUIRED)
         # ============================================
-        if echo "$$MODELS" | grep -q "nomic-embed-text"; then
-          echo "✓ nomic-embed-text already installed"
+        MODEL="nomic-embed-text"
+        if ollama list | grep -q "$$MODEL"; then
+          echo "✓ $$MODEL already installed"
         else
-          echo "Installing nomic-embed-text (274MB, ~1 minute)..."
-          ollama pull nomic-embed-text
-          echo "✓ nomic-embed-text installed"
+          echo "📥 Installing $$MODEL (274MB, ~1 min)..."
+          ollama pull $$MODEL && echo "✓ $$MODEL installed" || echo "✗ Failed to install $$MODEL"
         fi
         
         echo ""
         
         # ============================================
-        # Main LLM model - llama3.2:3b (ACTIVE)
+        # Main LLM model
         # ============================================
-        # if echo "$$MODELS" | grep -q "llama3.2:3b"; then
-        #   echo "✓ llama3.2:3b already installed"
-        # else
-        #   echo "=============================================="
-        #   echo "Installing llama3.2:3b"
-        #   echo "Size: ~2GB | Time: 2-5 minutes"
-        #   echo "=============================================="
-        #   ollama pull llama3.2:3b
-        #   echo "✓ llama3.2:3b installed"
-        # fi
-        
-        # ============================================
-        # GPT-OSS model (COMMENTED OUT - heavy model)
-        # Uncomment if you need more powerful model
-        # Requires: 16GB+ RAM, 13GB disk, 15-30 min download
-        # ============================================
-         if echo "$$MODELS" | grep -q "gpt-oss:20b"; then
-           echo "✓ gpt-oss:20b already installed"
-         else
-           echo "=============================================="
-           echo "Installing gpt-oss:20b"
-           echo "Size: ~13GB | Time: 15-30 minutes"
-           echo "=============================================="
-           ollama pull gpt-oss:20b
-           echo "✓ gpt-oss:20b installed"
-         fi
+        MODEL="${LLM_MODEL:-gpt-oss:20b}"
+        if ollama list | grep -q "$$MODEL"; then
+          echo "✓ $$MODEL already installed"
+        else
+          echo "=============================================="
+          echo "📥 Installing $$MODEL"
+          echo "⏱️  This may take 30-40 minutes (~13GB)"
+          echo "=============================================="
+          ollama pull $$MODEL && echo "✓ $$MODEL installed" || echo "✗ Failed to install $$MODEL"
+        fi
         
         echo ""
         echo "=============================================="
-        echo "Final model list:"
+        echo "📊 Final model list:"
         echo "=============================================="
         ollama list
         echo ""
-        echo "✓ Ollama initialization complete"
+        echo "✅ Ollama initialization complete!"
         echo "=============================================="
     restart: "no"
 
+  # ============================================================================
+  # Main Application (Streamlit)
+  # ============================================================================
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      # Локальное кэширование без внешнего registry
+#      cache_from:
+#        - news-aggregator-app:latest
+#    image: news-aggregator-app:latest
     container_name: news-aggregator-app
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      qdrant:
-        condition: service_started
-      ollama:
-        condition: service_healthy
-      ollama-init:
-        condition: service_completed_successfully
     environment:
+      # Database
       DATABASE_URL: postgresql://${POSTGRES_USER:-newsaggregator}:${POSTGRES_PASSWORD:-changeme123}@postgres:5432/${POSTGRES_DB:-news_aggregator}
+
+      # Redis
+      REDIS_URL: redis://redis:6379/0
+
+      # Reddit API
       REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID}
       REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET}
       REDDIT_USER_AGENT: ${REDDIT_USER_AGENT:-NewsAggregator/1.0}
+
+      # Telegram API
       TELEGRAM_API_ID: ${TELEGRAM_API_ID}
       TELEGRAM_API_HASH: ${TELEGRAM_API_HASH}
       TELEGRAM_PHONE: ${TELEGRAM_PHONE}
-      PYTHONUNBUFFERED: 1
-      TZ: ${TZ:-UTC}
-      STREAMLIT_SERVER_PORT: ${STREAMLIT_SERVER_PORT:-8501}
-      STREAMLIT_SERVER_ADDRESS: ${STREAMLIT_SERVER_ADDRESS:-0.0.0.0}
+
+      # Services
       QDRANT_URL: http://qdrant:6333
       OLLAMA_BASE_URL: http://ollama:11434
+      STABLE_DIFFUSION_URL: http://stable-diffusion:7860
+
+      # App config
+      PYTHONUNBUFFERED: 1
+      TZ: ${TZ:-UTC}
+      STREAMLIT_SERVER_PORT: 8501
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+      STREAMLIT_BROWSER_GATHER_USAGE_STATS: false
     ports:
       - "${APP_PORT:-8501}:8501"
     volumes:
+      - ./.env:/app/.env:ro  # Mount .env
       - ./src:/app/src:ro
       - ./config:/app/config:ro
-      - app_logs:/app/logs
-      - app_data:/app/data
+      - ./project_data/app_logs:/app/logs
+      - ./project_data/app_data:/app/data
     networks:
       - news-aggregator-network
+    depends_on:
+      - postgres
+      - redis
 
+  # ============================================================================
+  # FastAPI Backend (REST API)
+  # ============================================================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: news-aggregator-api
+    restart: unless-stopped
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-newsaggregator}:${POSTGRES_PASSWORD:-changeme123}@postgres:5432/${POSTGRES_DB:-news_aggregator}
+
+      # Redis
+      REDIS_URL: redis://redis:6379/0
+
+      # Services
+      QDRANT_URL: http://qdrant:6333
+      OLLAMA_BASE_URL: http://ollama:11434
+
+      # App config
+      PYTHONUNBUFFERED: 1
+      PYTHONPATH: /app
+      TZ: ${TZ:-UTC}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./src:/app/src
+      - ./config:/app/config:ro
+      - ./project_data/api_logs:/app/logs
+    networks:
+      - news-aggregator-network
+    depends_on:
+      - postgres
+      - redis
+      - qdrant
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================================================
+  # n8n Automation
+  # ============================================================================
   n8n:
     image: n8nio/n8n:latest
     container_name: news-aggregator-n8n
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
+    <<: *image-policy
     environment:
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: postgres
@@ -211,32 +303,107 @@ services:
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-changeme123}
-      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: ${N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS:-true}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_DB_RETRY_ATTEMPTS: 10
+      N8N_DB_RETRY_WAIT_MS: 5000
       TZ: ${TZ:-UTC}
+      N8N_RUNNERS_ENABLED: true
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: false
+      N8N_GIT_NODE_DISABLE_BARE_REPOS: true
     ports:
       - "${N8N_PORT:-5678}:5678"
     volumes:
-      - n8n_data:/home/node/.n8n
+      - ./project_data/n8n:/home/node/.n8n
     networks:
       - news-aggregator-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
+  # ============================================================================
+  # Adminer (Database UI)
+  # ============================================================================
   adminer:
     image: adminer:latest
     container_name: news-aggregator-adminer
     restart: unless-stopped
+    <<: *image-policy
     ports:
       - "${ADMINER_PORT:-8080}:8080"
     networks:
       - news-aggregator-network
 
-volumes:
-  postgres_data:
-  n8n_data:
-  ollama_data:
-  qdrant_data:
-  app_logs:
-  app_data:
+  # ============================================================================
+  # Stable Diffusion WebUI (Image Generation)
+  # ============================================================================
+#  stable-diffusion:
+#    image: ghcr.io/ai-dock/stable-diffusion-webui:v2-cuda--22.04-v1.10.1
+#    container_name: news-aggregator-sd
+#    restart: unless-stopped
+#    <<: *image-policy
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities: [gpu]
+#    environment:
+#      # Отключаем Cloudflare Tunnel
+#      QUICKTUNNELS: "false"
+#      DIRECT_ADDRESS: "0.0.0.0"
+#      DIRECT_ADDRESS_GET_WAN: "false"
+#
+#      # Stable Diffusion settings
+#      CLI_ARGS: "--allow-code --medvram --xformers --enable-insecure-extension-access --api --no-half-vae --skip-torch-cuda-test --listen"
+#      WEBUI_PORT: 7860
+#
+#      # GPU settings
+#      NVIDIA_VISIBLE_DEVICES: all
+#      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+#
+#      # Performance
+#      AUTO_UPDATE: "false"
+#      WEB_ENABLE_AUTH: "false"
+#      SUPERVISOR_LOG_LEVEL: "warn"
+#    ports:
+#      - "${SD_PORT:-7860}:7860"
+#    volumes:
+#      - ./project_data/stable_diffusion/models:/stable-diffusion-webui/models
+#      - ./project_data/stable_diffusion/embeddings:/stable-diffusion-webui/embeddings
+#      - ./project_data/stable_diffusion/outputs:/stable-diffusion-webui/outputs
+#      - ./project_data/stable_diffusion/extensions:/stable-diffusion-webui/extensions
+#      - ./project_data/stable_diffusion/config:/stable-diffusion-webui/config
+#    networks:
+#      - news-aggregator-network
+#    runtime: nvidia
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:7860"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 180s
+#    pull_policy: if_not_present
+#    profiles: []    # - full  # Опционально, запускается только с --profile full
 
+# ==============================================================================
+# Networks
+# ==============================================================================
 networks:
   news-aggregator-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ==============================================================================
+# Volumes
+# ==============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

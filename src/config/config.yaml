@@ -30,6 +30,8 @@ telegram:
   api_id: "your_api_id"
   api_hash: "your_api_hash"
   phone: "+1234567890"
+  channels:
+    - "@durov"
 
 # Настройки Qdrant
 qdrant:
@@ -74,3 +76,4 @@ n8n:
 medium:
   max_articles: 30
   delay: 3
+

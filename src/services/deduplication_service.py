@@ -1,172 +1,280 @@
-"""Сервис дедупликации постов через семантический поиск."""
+"""Сервис для дедупликации и векторизации контента."""
+
 import logging
-from typing import Optional, Tuple, Dict, Any
+import os
+import uuid
+from typing import Optional, Dict, Any, List
+from qdrant_client import QdrantClient
+from qdrant_client.http.models import Filter, FieldCondition, MatchValue
+from qdrant_client.http.models import PointStruct
+from sqlalchemy.orm import Session
+
+from src.models.database import get_session, HabrArticle, RedditPost, TelegramMessage, MediumArticle
 from src.services.ollama_service import get_ollama_service
-from src.services.qdrant_service import get_qdrant_service
-from src.models.database import get_session, RedditPost
 
 logger = logging.getLogger(__name__)
 
 
 class DeduplicationService:
-    """
-    Сервис для проверки семантических дубликатов постов.
+    """Сервис для дедупликации и векторизации контента."""
 
-    Использует векторный поиск для обнаружения постов со схожим содержанием,
-    даже если их заголовки и тексты отличаются дословно.
-    """
-
-    def __init__(self, similarity_threshold: float = 0.95):
-        """
-        Инициализация сервиса дедупликации.
-
-        Args:
-            similarity_threshold: Порог схожести для определения дубликата (0.0 - 1.0).
-                0.95 означает 95% схожести - очень строгий порог.
-        """
-        self.threshold = similarity_threshold
+    def __init__(self):
+        """Инициализация сервиса."""
+        self.qdrant_host = os.getenv("QDRANT_HOST", "qdrant")
+        self.qdrant_port = int(os.getenv("QDRANT_PORT", 6333))
+        self.client = QdrantClient(host=self.qdrant_host, port=self.qdrant_port)
         self.ollama = get_ollama_service()
-        self.qdrant = get_qdrant_service()
+        self.embedding_model = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
 
-    def check_duplicate(self, text: str) -> Tuple[bool, Optional[str], Optional[float]]:
-        """
-        Проверка является ли текст семантическим дубликатом существующих постов.
+    def _get_collection_name(self, source: str) -> str:
+        """Получить имя коллекции по источнику."""
+        if source == "reddit":
+            return "reddit_posts"
+        elif source == "habr":
+            return "habr_articles"
+        elif source == "telegram":
+            return "telegram_messages"
+        elif source == "medium":
+            return "medium_articles"
+        else:
+            raise ValueError(f"Неизвестный источник: {source}")
 
-        Алгоритм:
-        1. Генерация embedding вектора для входного текста
-        2. Поиск похожих векторов в Qdrant
-        3. Сравнение score с threshold
-
-        Args:
-            text: Текст для проверки (обычно title + selftext)
-
-        Returns:
-            Кортеж из трех элементов:
-            - is_duplicate: True если найден дубликат
-            - duplicate_post_id: ID найденного поста-дубликата
-            - similarity_score: Оценка схожести (0.0 - 1.0)
-
-        Examples:
-            >>> is_dup, dup_id, score = service.check_duplicate("GPT-4 is amazing")
-            >>> if is_dup:
-            ...     print(f"Duplicate of {dup_id} with {score:.2%} similarity")
-        """
-        logger.debug("Проверка на семантические дубликаты")
-
-        # Шаг 1: Генерация embedding через Ollama
-        embedding = self.ollama.get_embedding(text)
-        if not embedding:
-            logger.warning("Не удалось получить embedding, пропускаем проверку дубликатов")
-            return False, None, None
-
-        # Шаг 2: Поиск похожих векторов в Qdrant
-        similar = self.qdrant.search_similar(
-            vector=embedding,
-            limit=1,  # нужен только самый похожий
-            score_threshold=self.threshold
-        )
-
-        # Шаг 3: Анализ результатов
-        if similar:
-            duplicate = similar[0]
-            logger.info(f"Найден дубликат: {duplicate['post_id']}")
-            logger.info(f"Заголовок: {duplicate['title'][:60]}")
-            logger.info(f"Схожесть: {duplicate['score']:.2%}")
-
-            return True, duplicate['post_id'], duplicate['score']
-
-        logger.debug("Дубликатов не найдено")
-        return False, None, None
+    def _convert_id_to_uuid(self, record_id: str) -> str:
+        """Преобразовать ID записи в UUID."""
+        # Создаем UUID на основе ID записи и источника
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, str(record_id)))
 
     def save_to_qdrant(
         self,
         text: str,
-        post_id: str,
-        metadata: Dict[str, Any]
+        record_id: str,
+        metadata: Dict[str, Any],
+        source: str
     ) -> Optional[str]:
         """
-        Генерация embedding и сохранение в Qdrant.
+        Сохранить текст в Qdrant с вектором.
 
         Args:
-            text: Текст поста для векторизации
-            post_id: ID поста из PostgreSQL (для связи)
-            metadata: Метаданные для payload (title, subreddit, author, score)
+            text: Текст для векторизации
+            record_id: ID записи
+            metadata: Метаданные
+            source: Источник (reddit, habr, telegram, medium)
 
         Returns:
-            UUID записи в Qdrant (строка) или None при ошибке
+            ID точки в Qdrant или None в случае ошибки
         """
-        logger.debug(f"Сохранение в Qdrant: {post_id}")
-
-        # Генерация embedding
-        embedding = self.ollama.get_embedding(text)
-        if not embedding:
-            logger.error(f"Не удалось сгенерировать embedding для {post_id}")
-            return None
-
-        # Сохранение в Qdrant
         try:
-            qdrant_id = self.qdrant.upsert_point(
-                vector=embedding,
-                post_id=post_id,
-                metadata=metadata
+            collection_name = self._get_collection_name(source)
+
+            # Проверяем существование коллекции
+            if not self.client.collection_exists(collection_name):
+                self.client.create_collection(
+                    collection_name=collection_name,
+                    vectors_config={
+                        "size": 768,  # Размерность для nomic-embed-text
+                        "distance": "Cosine"
+                    }
+                )
+                logger.info(f"Создана коллекция: {collection_name}")
+
+            # Получаем вектор
+            vector = self.ollama.get_embedding(text, self.embedding_model)
+            if not vector:
+                logger.error(f"Не удалось получить вектор для текста")
+                return None
+
+            # Преобразуем ID в UUID
+            point_id = self._convert_id_to_uuid(record_id)
+
+            # Создаем точку
+            point = PointStruct(
+                id=point_id,  # Используем UUID вместо строкового ID
+                vector=vector,
+                payload={
+                    "record_id": record_id,  # Сохраняем оригинальный ID в payload
+                    "source": source,
+                    **metadata
+                }
             )
 
-            logger.debug(f"Сохранено в Qdrant: {qdrant_id}")
-            return qdrant_id
+            # Сохраняем в Qdrant
+            self.client.upsert(
+                collection_name=collection_name,
+                points=[point]
+            )
+
+            logger.debug(f"Текст сохранен в Qdrant: {point_id}")
+            return point_id
 
         except Exception as e:
             logger.error(f"Ошибка сохранения в Qdrant: {e}")
             return None
 
-    def update_postgres_with_qdrant_id(self, post_id: str, qdrant_id: str) -> bool:
+    def update_postgres_with_qdrant_id(
+        self,
+        record_id: str,
+        qdrant_id: str,
+        source: str
+    ) -> bool:
         """
-        Обновление записи в PostgreSQL с UUID из Qdrant.
-
-        Создает двустороннюю связь между PostgreSQL и Qdrant для
-        возможности синхронизации и каскадного удаления.
+        Обновить запись в PostgreSQL с ID из Qdrant.
 
         Args:
-            post_id: ID поста в PostgreSQL
-            qdrant_id: UUID записи в Qdrant
+            record_id: ID записи
+            qdrant_id: ID точки в Qdrant
+            source: Источник
 
         Returns:
-            True если обновление успешно, False при ошибке
+            True в случае успеха, False в случае ошибки
         """
-        session = get_session()
         try:
-            post = session.query(RedditPost).filter_by(post_id=post_id).first()
-            if not post:
-                logger.error(f"Пост {post_id} не найден в PostgreSQL")
-                return False
+            with get_session() as session:
+                if source == "reddit":
+                    post = session.query(RedditPost).filter_by(post_id=record_id).first()
+                    if post:
+                        post.qdrant_id = qdrant_id
+                elif source == "habr":
+                    article = session.query(HabrArticle).filter_by(article_id=record_id).first()
+                    if article:
+                        article.qdrant_id = qdrant_id
+                elif source == "telegram":
+                    message = session.query(TelegramMessage).filter_by(message_id=record_id).first()
+                    if message:
+                        message.qdrant_id = qdrant_id
+                elif source == "medium":
+                    article = session.query(MediumArticle).filter_by(article_id=record_id).first()
+                    if article:
+                        article.qdrant_id = qdrant_id
+                else:
+                    logger.error(f"Неизвестный источник: {source}")
+                    return False
 
-            # Преобразование строки UUID в объект UUID для PostgreSQL
-            import uuid as uuid_lib
-            post.qdrant_id = uuid_lib.UUID(qdrant_id)
-            session.commit()
-
-            logger.debug(f"PostgreSQL обновлен: {post_id} -> {qdrant_id}")
-            return True
+                session.commit()
+                logger.debug(f"Обновлена запись в PostgreSQL: {record_id} -> {qdrant_id}")
+                return True
 
         except Exception as e:
             logger.error(f"Ошибка обновления PostgreSQL: {e}")
-            session.rollback()
             return False
-        finally:
-            session.close()
+
+    def check_duplicate(
+        self,
+        text: str,
+        source: str,
+        threshold: float = 0.85
+    ) -> tuple[bool, Optional[str], float]:
+        """
+        Проверить наличие дубликатов в Qdrant.
+
+        Args:
+            text: Текст для проверки
+            source: Источник
+            threshold: Порог схожести
+
+        Returns:
+            Кортеж (is_duplicate, duplicate_id, similarity_score)
+        """
+        try:
+            collection_name = self._get_collection_name(source)
+
+            # Проверяем существование коллекции
+            if not self.client.collection_exists(collection_name):
+                return False, None, 0.0
+
+            # Получаем вектор
+            vector = self.ollama.get_embedding(text, self.embedding_model)
+            if not vector:
+                logger.error(f"Не удалось получить вектор для текста")
+                return False, None, 0.0
+
+            # Ищем похожие векторы
+            search_result = self.client.search(
+                collection_name=collection_name,
+                query_vector=vector,
+                limit=1,
+                score_threshold=threshold
+            )
+
+            if search_result:
+                duplicate_id = search_result[0].payload.get("record_id")
+                similarity_score = search_result[0].score
+                logger.debug(f"Найден дубликат: {duplicate_id} (схожесть: {similarity_score:.2f})")
+                return True, duplicate_id, similarity_score
+
+            return False, None, 0.0
+
+        except Exception as e:
+            logger.error(f"Ошибка проверки дубликатов: {e}")
+            return False, None, 0.0
+
+    def find_similar(
+        self,
+        text: str,
+        source: str,
+        limit: int = 5,
+        threshold: float = 0.7
+    ) -> List[Dict[str, Any]]:
+        """
+        Найти похожие записи в Qdrant.
+
+        Args:
+            text: Текст для поиска
+            source: Источник
+            limit: Максимальное количество результатов
+            threshold: Порог схожести
+
+        Returns:
+            Список похожих записей
+        """
+        try:
+            collection_name = self._get_collection_name(source)
+
+            # Проверяем существование коллекции
+            if not self.client.collection_exists(collection_name):
+                return []
+
+            # Получаем вектор
+            vector = self.ollama.get_embedding(text, self.embedding_model)
+            if not vector:
+                logger.error(f"Не удалось получить вектор для текста")
+                return []
+
+            # Ищем похожие векторы
+            search_result = self.client.search(
+                collection_name=collection_name,
+                query_vector=vector,
+                limit=limit,
+                score_threshold=threshold
+            )
+
+            results = []
+            for result in search_result:
+                results.append({
+                    "record_id": result.payload.get("record_id"),
+                    "source": result.payload.get("source"),
+                    "similarity": result.score,
+                    "metadata": result.payload
+                })
+
+            return results
+
+        except Exception as e:
+            logger.error(f"Ошибка поиска похожих записей: {e}")
+            return []
 
 
-# Singleton pattern
-_dedup_instance: Optional[DeduplicationService] = None
+# Singleton
+_deduplication_instance: Optional[DeduplicationService] = None
 
 
 def get_deduplication_service() -> DeduplicationService:
     """
-    Получение singleton экземпляра сервиса дедупликации.
+    Получить экземпляр сервиса дедупликации.
 
     Returns:
         Экземпляр DeduplicationService
     """
-    global _dedup_instance
-    if _dedup_instance is None:
-        _dedup_instance = DeduplicationService()
-    return _dedup_instance
+    global _deduplication_instance
+    if _deduplication_instance is None:
+        _deduplication_instance = DeduplicationService()
+    return _deduplication_instance

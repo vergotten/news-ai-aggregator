@@ -1,7 +1,7 @@
-"""Сервис для работы с Ollama LLM."""
+"""Сервис для работы с Ollama LLM с учетом ограничений токенов."""
 import os
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class OllamaService:
     """
-    Клиент для взаимодействия с Ollama API.
+    Клиент для взаимодействия с Ollama API с учетом ограничений токенов.
 
     Предоставляет методы для:
     - генерации текста через /api/generate
@@ -26,7 +26,7 @@ class OllamaService:
             self,
             base_url: Optional[str] = None,
             model: Optional[str] = None,
-            timeout: int = 300,
+            timeout: int = 600,
             max_retries: int = 3
     ):
         """
@@ -39,8 +39,23 @@ class OllamaService:
             max_retries: Количество попыток при ошибке.
         """
         self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
-        self.model = model or os.getenv("OLLAMA_MODEL", "gpt-oss:20b")  # llama3.2:3b
+        self.model = model or os.getenv("OLLAMA_MODEL", "gpt-oss:20b")
         self.timeout = timeout
+
+        # Устанавливаем лимит токенов для разных моделей
+        self.model_token_limits = {
+            "gpt-oss:20b": 16000,
+            "llama2": 4096,
+            "mistral": 8192,
+            "codellama": 16384,
+        }
+
+        # Определяем лимит токенов для текущей модели
+        self.max_tokens = self.model_token_limits.get(self.model, 128000)
+
+        # Резервируем токены для ответа модели (обычно 25% от лимита)
+        self.response_tokens = int(self.max_tokens * 0.25)
+        self.input_tokens_limit = self.max_tokens - self.response_tokens
 
         # Настройка HTTP сессии с автоматическими повторами
         self.session = requests.Session()
@@ -54,7 +69,121 @@ class OllamaService:
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
 
-        logger.info(f"Ollama сервис инициализирован: {self.base_url}, модель: {self.model}")
+        logger.info(f"Ollama сервис инициализирован: {self.base_url}, модель: {self.model}, лимит токенов: {self.max_tokens}")
+
+    def _estimate_tokens(self, text: str) -> int:
+        """
+        Приблизительная оценка количества токенов в тексте.
+
+        Для русского языка примерное соотношение: 1 токен ≈ 4 символа
+
+        Args:
+            text: Текст для оценки
+
+        Returns:
+            Приблизительное количество токенов
+        """
+        if not text:
+            return 0
+        # Для русского языка примерное соотношение
+        return len(text) // 4
+
+    def _truncate_text(self, text: str, max_tokens: int) -> str:
+        """
+        Обрезает текст до указанного количества токенов.
+
+        Args:
+            text: Исходный текст
+            max_tokens: Максимальное количество токенов
+
+        Returns:
+            Обрезанный текст
+        """
+        if not text:
+            return text
+
+        # Примерное соотношение для русского языка
+        max_chars = max_tokens * 4
+
+        if len(text) <= max_chars:
+            return text
+
+        # Обрезаем текст с учетом целых слов
+        truncated = text[:max_chars]
+        # Находим последний пробел, чтобы не обрывать слово
+        last_space = truncated.rfind(' ')
+        if last_space > max_chars * 0.8:  # Если пробел не слишком далеко от конца
+            truncated = truncated[:last_space]
+
+        return truncated + "... [текст обрезан]"
+
+    def _prepare_messages(self, messages: List[Dict[str, str]]) -> Tuple[List[Dict[str, str]], bool]:
+        """
+        Подготавливает сообщения к отправке, проверяя и обрезая при необходимости.
+
+        Args:
+            messages: Список сообщений
+
+        Returns:
+            Кортеж из (подготовленные сообщения, был ли текст обрезан)
+        """
+        prepared_messages = []
+        was_truncated = False
+
+        # Сначала считаем токены в системном сообщении
+        system_tokens = 0
+        system_message = None
+        other_messages = []
+
+        for msg in messages:
+            if msg.get("role") == "system":
+                system_message = msg
+                system_tokens = self._estimate_tokens(msg.get("content", ""))
+            else:
+                other_messages.append(msg)
+
+        # Для моделей с большим контекстом резервируем меньше места для системного сообщения
+        system_reserve_ratio = 0.1 if self.max_tokens >= 32000 else 0.5
+
+        # Если системное сообщение уже превышает лимит, обрезаем его
+        if system_tokens > self.input_tokens_limit * system_reserve_ratio:
+            system_message["content"] = self._truncate_text(
+                system_message["content"],
+                int(self.input_tokens_limit * system_reserve_ratio)
+            )
+            system_tokens = self._estimate_tokens(system_message["content"])
+            was_truncated = True
+            logger.warning(f"Системный промпт обрезан до {system_tokens} токенов")
+
+        # Добавляем системное сообщение
+        if system_message:
+            prepared_messages.append(system_message)
+
+        # Распределяем оставшиеся токены между остальными сообщениями
+        remaining_tokens = self.input_tokens_limit - system_tokens
+        if remaining_tokens <= 0:
+            logger.warning("Недостаточно токенов для пользовательских сообщений")
+            return prepared_messages, True
+
+        # Обрабатываем остальные сообщения
+        for msg in other_messages:
+            content = msg.get("content", "")
+            content_tokens = self._estimate_tokens(content)
+
+            if content_tokens > remaining_tokens:
+                msg["content"] = self._truncate_text(content, remaining_tokens)
+                was_truncated = True
+                logger.warning(f"Сообщение обрезано до {remaining_tokens} токенов")
+                remaining_tokens = 0  # Дальше места нет
+            else:
+                remaining_tokens -= content_tokens
+
+            prepared_messages.append(msg)
+
+            if remaining_tokens <= 0:
+                break
+
+        return prepared_messages, was_truncated
 
     def health_check(self) -> bool:
         """
@@ -84,32 +213,32 @@ class OllamaService:
             messages: Список сообщений в формате [{"role": "system/user/assistant", "content": "..."}]
             temperature: Температура сэмплирования (0.0 - детерминировано, 1.0 - креативно).
             max_tokens: Максимальное количество токенов для генерации.
-            stream: Потоковая генерация (не реализовано).
+            stream: Потоковая генерация (не реализована).
 
         Returns:
             Сгенерированный текст или None при ошибке.
-
-        Examples:
-            >>> messages = [
-            ...     {"role": "system", "content": "You are a helpful assistant"},
-            ...     {"role": "user", "content": "Hello!"}
-            ... ]
-            >>> response = ollama.chat(messages)
         """
         if stream:
             raise NotImplementedError("Потоковая генерация не реализована")
 
+        # Проверяем и обрезаем сообщения при необходимости
+        prepared_messages, was_truncated = self._prepare_messages(messages)
+
+        if was_truncated:
+            logger.warning(f"Промпт был обрезан для модели {self.model} с лимитом {self.max_tokens} токенов")
+
         payload = {
             "model": self.model,
-            "messages": messages,
+            "messages": prepared_messages,
             "stream": False,
             "options": {
                 "temperature": temperature
             }
         }
 
-        if max_tokens:
-            payload["options"]["num_predict"] = max_tokens
+        # Устанавливаем лимит токенов для ответа
+        response_max_tokens = max_tokens or self.response_tokens
+        payload["options"]["num_predict"] = response_max_tokens
 
         try:
             logger.debug(f"Отправка chat запроса к {self.base_url}/api/chat")
@@ -160,7 +289,7 @@ class OllamaService:
             system: Системный промт (инструкция для модели).
             temperature: Температура сэмплирования (0.0 - детерминировано, 1.0 - креативно).
             max_tokens: Максимальное количество токенов для генерации.
-            stream: Потоковая генерация (не реализовано).
+            stream: Потоковая генерация (не реализована).
 
         Returns:
             Сгенерированный текст или None при ошибке.
@@ -177,6 +306,12 @@ class OllamaService:
         if stream:
             raise NotImplementedError("Потоковая генерация не реализована")
 
+        # Проверяем и обрезаем промпт при необходимости
+        prompt_tokens = self._estimate_tokens(prompt)
+        if prompt_tokens > self.input_tokens_limit:
+            prompt = self._truncate_text(prompt, self.input_tokens_limit)
+            logger.warning(f"Промпт обрезан с {prompt_tokens} до {self._estimate_tokens(prompt)} токенов")
+
         payload = {
             "model": self.model,
             "prompt": prompt,
@@ -186,8 +321,9 @@ class OllamaService:
             }
         }
 
-        if max_tokens:
-            payload["options"]["num_predict"] = max_tokens
+        # Устанавливаем лимит токенов для ответа
+        response_max_tokens = max_tokens or self.response_tokens
+        payload["options"]["num_predict"] = response_max_tokens
 
         try:
             logger.debug(f"Отправка generate запроса к {self.base_url}/api/generate")
@@ -228,6 +364,16 @@ class OllamaService:
             Список из 768 чисел (вектор) или None при ошибке.
         """
         embedding_model = model or os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
+
+        # Устанавливаем безопасную длину текста
+        MAX_TEXT_LENGTH = 2000
+
+        if len(text) > MAX_TEXT_LENGTH:
+            logger.warning(
+                f"Текст для эмбеддинга слишком длинный ({len(text)} символов). "
+                f"Он будет обрезан до {MAX_TEXT_LENGTH} символов."
+            )
+            text = text[:MAX_TEXT_LENGTH]
 
         payload = {
             "model": embedding_model,

@@ -1,0 +1,43 @@
+FROM python:3.10-slim as builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc g++ && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir --verbose psycopg2-binary && \
+    pip install --no-cache-dir uvicorn[standard] fastapi
+
+FROM python:3.10-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid 1000 appuser && \
+    useradd --uid 1000 --gid appuser --create-home appuser
+
+COPY --from=builder /opt/venv /opt/venv
+
+WORKDIR /app
+
+RUN mkdir -p /app/logs /app/data && \
+    chown -R appuser:appuser /app
+
+COPY --chown=appuser:appuser src/ /app/src/
+COPY --chown=appuser:appuser config/ /app/config/
+COPY --chown=appuser:appuser requirements.txt /app/
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PATH="/opt/venv/bin:$PATH"
+
+USER appuser
+
+EXPOSE 8000
+
+CMD ["uvicorn", "src.api.api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

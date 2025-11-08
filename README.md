@@ -1139,6 +1139,7 @@ chmod +x start.sh stop.sh logs.sh clean.sh
    
 🔧 Adminer (управление БД)
    http://localhost:8080
+   Server:   postgres   
    Логин:    newsaggregator
    Пароль:   changeme123
    БД:       news_aggregator

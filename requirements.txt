@@ -1,21 +1,30 @@
-# Existing
+# Core
 streamlit>=1.28.0
-praw>=7.7.1
 requests>=2.31.0
 sqlalchemy>=2.0.23
-psycopg2-binary>=2.9.9
 python-dotenv>=1.0.0
 beautifulsoup4>=4.12.2
-telethon>=1.32.0
 urllib3>=2.0.0
-
-# Telegram
-telethon>=1.32.0
-
-# Vector database
-qdrant-client>=1.7.0
-
-tomli>=2.0.1
-tomli-w>=1.0.0
 PyYAML>=6.0
 feedparser>=6.0
+scrapy
+
+# Reddit
+praw>=7.7.1
+
+# Telegram
+telethon>=1.35.0
+
+# Vector Database
+qdrant-client>=1.7.0
+
+# TOML
+tomli>=2.0.1
+tomli-w>=1.0.0
+
+# PostgreSQL Driver
+psycopg2-binary>=2.9.9
+
+cryptg>=0.4.0
+
+redis>=5.0.0

@@ -181,5 +181,353 @@
   },
   "telegram": {
     "channels": []
+  },
+  "habr": {
+    "hubs": [
+      {
+        "name": "artificial_intelligence",
+        "category": "ai",
+        "description": "Искусственный интеллект"
+      },
+      {
+        "name": "machine_learning",
+        "category": "ai",
+        "description": "Машинное обучение"
+      },
+      {
+        "name": "neural_networks",
+        "category": "ai",
+        "description": "Нейронные сети"
+      },
+      {
+        "name": "deep_learning",
+        "category": "ai",
+        "description": "Глубокое обучение"
+      },
+      {
+        "name": "data_mining",
+        "category": "ai",
+        "description": "Анализ данных"
+      },
+      {
+        "name": "natural_language_processing",
+        "category": "ai",
+        "description": "Обработка естественного языка"
+      },
+      {
+        "name": "computer_vision",
+        "category": "ai",
+        "description": "Компьютерное зрение"
+      },
+      {
+        "name": "python",
+        "category": "python",
+        "description": "Python разработка"
+      },
+      {
+        "name": "django",
+        "category": "python",
+        "description": "Django фреймворк"
+      },
+      {
+        "name": "flask",
+        "category": "python",
+        "description": "Flask микрофреймворк"
+      },
+      {
+        "name": "asyncio",
+        "category": "python",
+        "description": "Асинхронное программирование"
+      },
+      {
+        "name": "programming",
+        "category": "tech",
+        "description": "Программирование"
+      },
+      {
+        "name": "development",
+        "category": "tech",
+        "description": "Разработка ПО"
+      },
+      {
+        "name": "algorithms",
+        "category": "tech",
+        "description": "Алгоритмы"
+      },
+      {
+        "name": "software_engineering",
+        "category": "tech",
+        "description": "Инженерия ПО"
+      },
+      {
+        "name": "devops",
+        "category": "tech",
+        "description": "DevOps практики"
+      },
+      {
+        "name": "docker",
+        "category": "tech",
+        "description": "Docker контейнеры"
+      },
+      {
+        "name": "kubernetes",
+        "category": "tech",
+        "description": "Kubernetes оркестрация"
+      },
+      {
+        "name": "databases",
+        "category": "tech",
+        "description": "Базы данных"
+      },
+      {
+        "name": "cloud_services",
+        "category": "tech",
+        "description": "Облачные сервисы"
+      },
+      {
+        "name": "microservices",
+        "category": "tech",
+        "description": "Микросервисная архитектура"
+      },
+      {
+        "name": "api",
+        "category": "tech",
+        "description": "API разработка"
+      },
+      {
+        "name": "backend",
+        "category": "tech",
+        "description": "Backend разработка"
+      },
+      {
+        "name": "frontend",
+        "category": "tech",
+        "description": "Frontend разработка"
+      },
+      {
+        "name": "web_development",
+        "category": "tech",
+        "description": "Веб-разработка"
+      },
+      {
+        "name": "opensource",
+        "category": "tech",
+        "description": "Open Source проекты"
+      }
+    ],
+    "tags": [
+      {
+        "name": "машинное-обучение",
+        "category": "ai"
+      },
+      {
+        "name": "нейронные-сети",
+        "category": "ai"
+      },
+      {
+        "name": "искусственный-интеллект",
+        "category": "ai"
+      },
+      {
+        "name": "deep-learning",
+        "category": "ai"
+      },
+      {
+        "name": "nlp",
+        "category": "ai"
+      },
+      {
+        "name": "chatgpt",
+        "category": "ai"
+      },
+      {
+        "name": "gpt",
+        "category": "ai"
+      },
+      {
+        "name": "llm",
+        "category": "ai"
+      },
+      {
+        "name": "большие-языковые-модели",
+        "category": "ai"
+      },
+      {
+        "name": "компьютерное-зрение",
+        "category": "ai"
+      },
+      {
+        "name": "tensorflow",
+        "category": "ai"
+      },
+      {
+        "name": "pytorch",
+        "category": "ai"
+      },
+      {
+        "name": "keras",
+        "category": "ai"
+      },
+      {
+        "name": "transformers",
+        "category": "ai"
+      },
+      {
+        "name": "stable-diffusion",
+        "category": "ai"
+      },
+      {
+        "name": "генеративные-модели",
+        "category": "ai"
+      },
+      {
+        "name": "reinforcement-learning",
+        "category": "ai"
+      },
+      {
+        "name": "обучение-с-подкреплением",
+        "category": "ai"
+      },
+      {
+        "name": "data-science",
+        "category": "ai"
+      },
+      {
+        "name": "python",
+        "category": "python"
+      },
+      {
+        "name": "питон",
+        "category": "python"
+      },
+      {
+        "name": "django",
+        "category": "python"
+      },
+      {
+        "name": "flask",
+        "category": "python"
+      },
+      {
+        "name": "fastapi",
+        "category": "python"
+      },
+      {
+        "name": "asyncio",
+        "category": "python"
+      },
+      {
+        "name": "python3",
+        "category": "python"
+      },
+      {
+        "name": "python-разработка",
+        "category": "python"
+      },
+      {
+        "name": "программирование",
+        "category": "tech"
+      },
+      {
+        "name": "разработка",
+        "category": "tech"
+      },
+      {
+        "name": "алгоритмы",
+        "category": "tech"
+      },
+      {
+        "name": "структуры-данных",
+        "category": "tech"
+      },
+      {
+        "name": "backend",
+        "category": "tech"
+      },
+      {
+        "name": "frontend",
+        "category": "tech"
+      },
+      {
+        "name": "api",
+        "category": "tech"
+      },
+      {
+        "name": "microservices",
+        "category": "tech"
+      },
+      {
+        "name": "микросервисы",
+        "category": "tech"
+      },
+      {
+        "name": "devops",
+        "category": "tech"
+      },
+      {
+        "name": "docker",
+        "category": "tech"
+      },
+      {
+        "name": "kubernetes",
+        "category": "tech"
+      },
+      {
+        "name": "облачные-технологии",
+        "category": "tech"
+      },
+      {
+        "name": "cloud",
+        "category": "tech"
+      },
+      {
+        "name": "базы-данных",
+        "category": "tech"
+      },
+      {
+        "name": "databases",
+        "category": "tech"
+      },
+      {
+        "name": "highload",
+        "category": "tech"
+      },
+      {
+        "name": "высокие-нагрузки",
+        "category": "tech"
+      },
+      {
+        "name": "архитектура",
+        "category": "tech"
+      },
+      {
+        "name": "software-architecture",
+        "category": "tech"
+      },
+      {
+        "name": "clean-code",
+        "category": "tech"
+      },
+      {
+        "name": "best-practices",
+        "category": "tech"
+      },
+      {
+        "name": "opensource",
+        "category": "tech"
+      },
+      {
+        "name": "open-source",
+        "category": "tech"
+      },
+      {
+        "name": "git",
+        "category": "tech"
+      },
+      {
+        "name": "ci-cd",
+        "category": "tech"
+      }
+    ]
   }
 }
